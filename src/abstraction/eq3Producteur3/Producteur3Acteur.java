@@ -9,29 +9,13 @@ import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.filiere.IActeur;
 import abstraction.eqXRomu.general.Journal;
 import abstraction.eqXRomu.general.Variable;
-import abstraction.eqXRomu.general.VariablePrivee;
 import abstraction.eqXRomu.general.VariableReadOnly;
 import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.produits.IProduit;
 
 public class Producteur3Acteur implements IActeur {
-	private Journal journal_periode; 
+	private Journal journal_periode;
 	protected int cryptogramme;
-<<<<<<< HEAD
-	protected HashMap<Feve,Variable> stockFeve; // Dictionnaire des stocks de fèves 
-	protected Variable totalStock; // Quantité de stock total toutes fèves confondues
-
-	public Producteur3Acteur() {
-		this.journal_periode = new Journal("Journal des périodes", this);
-		this.stockFeve = new HashMap<Feve, Variable>();
-		this.totalStock = new VariableReadOnly("Eq3 StockTotalFeve", "<html>Quantite totale de feve en stock</html>",this, 0.0);
-		for (Feve f : Feve.values()) {
-    		this.stockFeve.put(f, new VariableReadOnly(this + " Stock " + f, this, 0.0));
-			this.totalStock.ajouter(this,this.stockFeve.get(f).getValeur(),cryptogramme);
-		}
-		
-		
-=======
 	protected HashMap<Feve,Variable> stock;
 	private double stockTotal;
 	private Variable StockToltal;
@@ -48,7 +32,6 @@ public class Producteur3Acteur implements IActeur {
 			this.stockTotal=this.stockTotal+this.stock.get(f).getValeur();
 		}
 		this.StockToltal= new VariableReadOnly(this + " Stock total", this, this.stockTotal);
->>>>>>> 8edf715bb0c3fe4c968e8348518f0246995ad14f
 	}
 	
 	public void initialiser() {
@@ -69,8 +52,6 @@ public class Producteur3Acteur implements IActeur {
 	public void next() {
 		// défi 1 
 		this.journal_periode.ajouter("période : "+ Filiere.LA_FILIERE.getEtape());
-<<<<<<< HEAD
-=======
 		//défi 2
 		this.stockTotal=0;
 		this.stock.clear();
@@ -80,7 +61,6 @@ public class Producteur3Acteur implements IActeur {
 		}
 		this.StockToltal= new VariableReadOnly(this + " Stock total", this, this.stockTotal);
 		this.journal.ajouter("stocks" + this.stockTotal);
->>>>>>> 8edf715bb0c3fe4c968e8348518f0246995ad14f
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
@@ -95,13 +75,9 @@ public class Producteur3Acteur implements IActeur {
 	public List<Variable> getIndicateurs() {
 		System.err.println("ok");
 		List<Variable> res = new ArrayList<Variable>();
-<<<<<<< HEAD
-		res.add(this.totalStock);
-=======
 		System.err.println(this.stockTotal);
 		res.addAll(this.stock.values());
 		res.add(this.StockToltal);
->>>>>>> 8edf715bb0c3fe4c968e8348518f0246995ad14f
 		return res;
 	}
 
@@ -115,7 +91,6 @@ public class Producteur3Acteur implements IActeur {
 	// Renvoie les journaux
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
-		res.addAll(this.stockFeve.values());
 		res.add(this.journal_periode);
 		res.add(this.journal);
 		return res;
