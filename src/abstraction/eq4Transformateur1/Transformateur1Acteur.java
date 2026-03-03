@@ -12,12 +12,16 @@ import abstraction.eqXRomu.produits.IProduit;
 
 public class Transformateur1Acteur implements IActeur {
 	
+	private Journal journal= new Journal("numéro de l'étape",this );
+
 	protected int cryptogramme;
+	private Variable v;
 
 	public Transformateur1Acteur() {
 	}
 	
-	public void initialiser() {
+	public void initialiser() {if (Filiere.LA_FILIERE.getEtape()>=0){
+		journal.ajouter("etape:"+Filiere.LA_FILIERE.getEtape());}
 	}
 
 	public String getNom() {// NE PAS MODIFIER
@@ -33,6 +37,9 @@ public class Transformateur1Acteur implements IActeur {
 	////////////////////////////////////////////////////////
 
 	public void next() {
+		if (Filiere.LA_FILIERE.getEtape()>=0){
+			int etape= Filiere.LA_FILIERE.getEtape()+1;
+		journal.ajouter("etape:"+etape);}
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
@@ -58,6 +65,7 @@ public class Transformateur1Acteur implements IActeur {
 	// Renvoie les journaux
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
+		res.add(journal);
 		return res;
 	}
 
