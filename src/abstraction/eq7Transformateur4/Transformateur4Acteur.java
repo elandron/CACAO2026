@@ -44,7 +44,7 @@ public class Transformateur4Acteur implements IActeur, IAcheteurBourse {
 		int etape=Filiere.LA_FILIERE.getEtape();
 		this.journal.ajouter("Etape "+ String.valueOf(etape));
 		// mettre à jour l'indicateur de stock
-		indicateurStockTotal.setValeur(stockTotal);
+		indicateurStockTotal.setValeur(this,stockTotal);
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
