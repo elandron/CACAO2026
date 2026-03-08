@@ -14,7 +14,7 @@ import abstraction.eqXRomu.produits.IProduit;
 
 public class Distributeur1Acteur implements IActeur {
 	
-	protected Journal journal0;
+	protected Journal journal0;/** @author Ewen Landron */
 	protected Variable volumeStock;/** @author Alexandre Cornet */
 	protected HashMap<IProduit, Double> Rayon;/** @author Alexandre Cornet */
 	protected int cryptogramme;/** @author Alexandre Cornet */
@@ -54,7 +54,7 @@ public class Distributeur1Acteur implements IActeur {
 	////////////////////////////////////////////////////////
 
 	public void next() {
-		this.journal0.ajouter("Numéro de tour : " + Filiere.LA_FILIERE.getEtape());
+		this.journal0.ajouter("Numéro de tour : " + Filiere.LA_FILIERE.getEtape());/** @author Ewen Landron */
 		this.getvolumestock();/** @author Alexandre Cornet */
 	}
 
@@ -121,6 +121,7 @@ public class Distributeur1Acteur implements IActeur {
 	}
 
 	// Renvoie les journaux
+	/** @author Ewen Landron */
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
 		res.add(this.journal0);
