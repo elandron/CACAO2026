@@ -15,6 +15,7 @@ import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.produits.IProduit;
 import abstraction.eq6Transformateur3.StockFeve;
+import abstraction.eq6Transformateur3.StockChocolat;;
 
 public class Transformateur3Acteur implements IActeur {
 	
@@ -22,9 +23,11 @@ public class Transformateur3Acteur implements IActeur {
 	protected int cryptogramme;
 	protected StockFeve stockFeve;
 	protected Variable Eq6TotalStock;
+	protected StockChocolat stockChocolat;
 
 	public Transformateur3Acteur() {
 		this.stockFeve = new StockFeve();
+		this.stockChocolat = new StockChocolat();
 		this.Eq6TotalStock = new VariablePrivee("Eq6TotalStock", "<html>Stock total de fèves+chocolats+chocolats de marque</html>", this, 0.0, 1000000.0, 0.0);
 	}
 	
@@ -68,6 +71,11 @@ public class Transformateur3Acteur implements IActeur {
 		for (ChocolatDeMarque chocoMarque : ChocolatDeMarque.getChocolatDeMarque()) {
 			this.journal.ajouter("Stock de "+Journal.texteSurUneLargeurDe(chocoMarque+"", 15)+" = "+this.getQuantitecm(chocoMarque, this.cryptogramme));
 		}
+
+		for (Chocolat chocolat : stockChocolat.getChocolat()) {
+			this.journal.ajouter("Stock de "+Journal.texteSurUneLargeurDe(chocolat+"", 15)+" = "+this.stockChocolat.getQuantite(chocolat));
+		}
+
 
 		int etape = Filiere.LA_FILIERE.getEtape();
 		journal.ajouter("Étape " + etape);
