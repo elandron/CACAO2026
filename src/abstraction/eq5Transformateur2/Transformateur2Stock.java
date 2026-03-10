@@ -46,16 +46,27 @@ public class Transformateur2Stock extends Transformateur2Acteur{
 
     /** @author Pierre
     **/
-    public Double getStock_feve(){
+    public Double getStock_feve_total(){
         return this.stock_feve.get(Feve.F_BQ) + this.stock_feve.get(Feve.F_BQ_E) + this.stock_feve.get(Feve.F_MQ) + this.stock_feve.get(Feve.F_MQ_E) + this.stock_feve.get(Feve.F_HQ) + this.stock_feve.get(Feve.F_HQ_E);
         }
     
     /** @author Pierre
     **/
-    public Double getStock_chocolat(){
+    public Double getStock_chocolat_total(){
         return this.stock_chocolat.get(Chocolat.C_BQ) + this.stock_feve.get(Chocolat.C_BQ_E) + this.stock_feve.get(Chocolat.C_MQ) + this.stock_feve.get(Chocolat.C_MQ_E) + this.stock_feve.get(Chocolat.C_HQ) + this.stock_feve.get(Chocolat.C_HQ_E);
-        }
-
+    }
+    /**
+     * @author Maxence
+     */
+    public Double getStock_feve(Feve q){
+        return this.stock_feve.get(q);
+    }
+    /**
+     * @author Maxence
+     */
+    public Double getStock_chocolat(Chocolat q){
+        return this.stock_chocolat.get(q);
+    }
     /** @author Pierre
     **/
     public void add_feve(Double n, Feve q){
