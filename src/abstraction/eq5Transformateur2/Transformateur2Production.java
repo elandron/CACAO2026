@@ -1,7 +1,7 @@
 package abstraction.eq5Transformateur2;
 
 /** @author Pierre */
-public class Transformateur2Production extends Transformateur2VendeurAuxEncheres{
+public class Transformateur2Production extends Transformateur2Stock{
     
     // Attributs
     private int Machine;
