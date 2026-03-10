@@ -66,10 +66,11 @@ public class Plantation {
         }
     }
 
-    // Getters
+    /** @author Simon */
+
     public Feve getTypeFeve() {
         return typeFeve;
-    }
+    } 
 
     public int getParcelles() {
         return parcelles;
@@ -78,6 +79,7 @@ public class Plantation {
     public int getAge() {
         return age;
     }
+
 
     public int getDureeDeVie() {
         return dureeDeVie;
