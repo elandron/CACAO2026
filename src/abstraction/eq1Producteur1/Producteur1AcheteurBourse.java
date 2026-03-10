@@ -15,39 +15,26 @@ import abstraction.eqXRomu.produits.Feve;
  */
 public class Producteur1AcheteurBourse extends Producteur1Acteur implements IAcheteurBourse {
 
-    private double achatMaxParStep;
-
-    public Producteur1AcheteurBourse(double achatMaxParStep) {
+    public Producteur1AcheteurBourse() {
         super();
-        this.achatMaxParStep = achatMaxParStep;
     }
 
-    
-    public double proposerPrix(MiseAuxEncheres miseAuxEncheres){
-        return 0.0;
-    }
 
-    @Override
-    public double demande(Feve f, double cours) {
-        if (this.getFeve().equals(f)) {
-            BourseCacao bourse = (BourseCacao) Filiere.LA_FILIERE.getActeur("BourseCacao");
-            double max    = bourse.getCours(getFeve()).getMax();
-            double min    = bourse.getCours(getFeve()).getMin();
-            double valeur = bourse.getCours(getFeve()).getValeur();
-            double pourcentage = (max - valeur) / (max - min);
-            return achatMaxParStep * pourcentage;
-        }
-        return 0.0;
-    }
-
-    @Override
     public void notificationAchat(Feve f, double quantiteEnT, double coursEnEuroParT) {
-        this.stockFeve.setValeur(this, this.stockFeve.getValeur() + quantiteEnT);
+        this.getJournaux().get(1).ajouter("Achat effectué de: "+quantiteEnT+" fèves "+f+" au prix/tonne de "+coursEnEuroParT);
+        this.getJournaux().get(4).ajouter("Achat effectué de: "+quantiteEnT+" fèves "+f+" au prix/tonne de "+coursEnEuroParT);
+
     }
 
-    @Override
     public void notificationBlackList(int dureeEnStep) {
         this.journal.ajouter("Aie... je suis blackliste... j'aurais du verifier "
                 + "que j'avais assez d'argent avant de passer une trop grosse commande en bourse...");
+    }
+
+
+    @Override
+    public double demande(Feve f, double cours) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'demande'");
     }
 }
