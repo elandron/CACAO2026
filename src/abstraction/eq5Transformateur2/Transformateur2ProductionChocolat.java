@@ -10,7 +10,7 @@ import abstraction.eqXRomu.filiere.IActeur;
 
 /** @author Pierre
  */
-public class Transformateur2ProductionChocolat extends Transformateur2VendeurAuxEncheres {
+public class Transformateur2ProductionChocolat extends Transformateur2Production {
     
     public Transformateur2ProductionChocolat(){
         super();
@@ -21,12 +21,12 @@ public class Transformateur2ProductionChocolat extends Transformateur2VendeurAux
         assert p >= 0.45;
         Double f = p * n;
         if ( f <= this.getStock_feve(q) ){
-            Double a = n* (1 - p) * prix_MP;
+            Double a = n * (1 - p) * prix_MP;
             if ( a <= this.getSolde()){
-                if (true /* Machine & Employé Dispo */){
+                if (this.Occupation(n)){
                     this.remove_feve(f, q);
                     Filiere.LA_FILIERE.getBanque().payerCout(this, cryptogramme, "Achat de MP pour production de chocolat", prix_MP);
-                    /* Occupation */
+                    this.addEncours(n);
                     // Calcul Quali
                     Double Q = 0.0;
                     if (q == Feve.F_BQ){
