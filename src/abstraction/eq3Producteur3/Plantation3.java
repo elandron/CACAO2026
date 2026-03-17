@@ -61,7 +61,7 @@ public class Plantation3 {
     }
 
     /**
-     * Affiche un récapitulatif complet dans la console
+     * Affiche un récapitulatif complet
      */
     public void afficherRecap() {
         System.out.println("=== RÉCAPITULATIF DE LA PLANTATION ===");
