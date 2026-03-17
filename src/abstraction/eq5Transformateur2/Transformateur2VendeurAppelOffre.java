@@ -21,7 +21,6 @@ import abstraction.eqXRomu.bourseCacao.BourseCacao;
  * @author Pierre GUTTIEREZ
  */
 public class Transformateur2VendeurAppelOffre extends Transformateur2AcheteurBourse implements IVendeurAO{
-    private SuperviseurVentesAO superviseur =(SuperviseurVentesAO)(Filiere.LA_FILIERE.getActeur("Sup.AO"));
 
     public Transformateur2VendeurAppelOffre() {
         super();
