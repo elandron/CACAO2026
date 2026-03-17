@@ -70,7 +70,7 @@ public class Distributeur2Acteur implements IActeur {
 		this.indicateurStockTotal.setValeur(this, getStockTotal());
 		}
 	}
-
+		/** @author Anass Ouisrani*/ 
 	private double getStockTotal() {
 		double total = 0.0;
 		for (double q : stock.values()) {
