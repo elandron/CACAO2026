@@ -20,9 +20,9 @@ public class Producteur1Stock extends Producteur1Acteur{
     public Producteur1Stock(){
         super();
         this.lots= new ArrayList<Lot>();
-        this.stock.put(Feve.F_BQ,0.);
+        this.stock.put(Feve.F_BQ,4000.);
         this.stock.put(Feve.F_BQ_E,0.);
-        this.stock.put(Feve.F_MQ,0.);
+        this.stock.put(Feve.F_MQ,2000.);
         this.stock.put(Feve.F_MQ_E,0.);
         this.stock.put(Feve.F_HQ,0.);
         this.stock.put(Feve.F_HQ_E,0.);
@@ -105,6 +105,7 @@ public class Producteur1Stock extends Producteur1Acteur{
                 if(lot.getQuantite() <= rest){ // Si on peut prendre tout le lot, on le prend
                     take_out.add(lot);
                     rest -= lot.getQuantite();
+                    this.changeStock(f, -lot.getQuantite());
                     this.removeLot(i);
                 }
 
@@ -112,6 +113,8 @@ public class Producteur1Stock extends Producteur1Acteur{
                     Lot new_lot = new Lot(f, lot.getEtapeCreation(), rest);
                     take_out.add(new_lot);
                     lot.setQuantite(lot.getQuantite() - rest );
+                    this.changeStock(f, -rest);
+                    rest = 0;
 
                 }
             }
