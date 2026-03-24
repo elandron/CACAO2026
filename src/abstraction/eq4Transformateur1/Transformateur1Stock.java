@@ -53,7 +53,7 @@ public class Transformateur1Stock {
     public double getStocksChocoBQ(){
         return stockChoco.get(Chocolat.C_BQ);
     }
-
+    
     public double getStocksFevesMQ(){
         return stockFeves.get(Feve.F_MQ);
     }
@@ -61,7 +61,7 @@ public class Transformateur1Stock {
     public double getStocksFevesHQ(){
         return stockFeves.get(Feve.F_HQ);
     }
-
+    
     public double getStocksFevesBQE(){
         return stockFeves.get(Feve.F_BQ_E);
     }
@@ -76,7 +76,7 @@ public class Transformateur1Stock {
 
     public double getTotalStocksChoco(){
         return this.getStocksChocoBQ()+this.getStocksChocoMQ()+this.getStocksChocoHQ()+this.getStocksChocoBQE()+this.getStocksChocoMQE()+this.getStocksChocoHQE();
-        }
+    }
     public double getTotalStocksFeves(){
         return this.getStocksFevesBQ()+this.getStocksFevesMQ()+this.getStocksFevesHQ()+this.getStocksFevesBQE()+this.getStocksFevesMQE()+this.getStocksFevesHQE();
     }
@@ -135,7 +135,7 @@ public class Transformateur1Stock {
 // Des methodes pour faire un achat en Bourse
     public void setStockFeves(Feve f, double QuantiteEnT){
         stockFeves.put(f,QuantiteEnT);
-    }
+        }
     public void setStockChoco(Chocolat c, double QuantiteEnT){
         stockChoco.put(c,QuantiteEnT);
         }
