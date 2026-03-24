@@ -15,44 +15,74 @@ import abstraction.eqXRomu.general.Variable;
 import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.IProduit;
 
-public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarque {
+public class Distributeur2Acteur implements IDistributeurChocolatDeMarque {
 	protected int cryptogramme;
 	protected Journal journal;
 	protected Map<IProduit, Double> stock;
 	protected Variable indicateurStockTotal;
-	protected Map<ChocolatDeMarque, Double> prix;
-    protected double capaciteRayonKg = 50000.0;
+	protected Map<ChocolatDeMarque, Double> prixParProduit;
+    // Prix réalistes selon le document (en €/kg)
+    protected double prixBaseBQ = 12000.0;    // Bas de gamme
+    protected double prixBaseMQ = 16000.0;    // Milieu de gamme
+    protected double prixBaseHQ = 22000.0;    // Haut de gamme
+    // Capacité de rayon réaliste pour un distributeur (500 tonnes)
+    protected double capaciteRayonKg = 500000.0;
 
 	/**
      * @author Paul Juhel
-     */ 
+     */
 	public Distributeur2Acteur() {
 		this.journal = new Journal("Journal EQ9", this);
 		this.stock = new HashMap<>();
 		this.indicateurStockTotal = new Variable("EQ9_stock_total", this, 0.0);
 	}
-	    
-	
-	// Ajoute 100 tonnes d'un produit en rayon 
+
+
+	// Ajoute 100 tonnes d'un produit en rayon
 		/**
-         * @author Anass Ouisrani
-         */ 
+         * @author Anass Ouisrani et Paul Juhel
+         */
 	public void initialiser() {
         this.stock.clear();
-        List<abstraction.eqXRomu.produits.ChocolatDeMarque> produits = abstraction.eqXRomu.filiere.Filiere.LA_FILIERE.getChocolatsProduits();
+        List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
+
+        // Initialiser le stock pour TOUS les produits disponibles (pas seulement le premier)
         if (produits != null && !produits.isEmpty()) {
-            IProduit produit = produits.get(0);
-            this.stock.put(produit, 100000.0);
+            for (ChocolatDeMarque choco : produits) {
+                // Stock initial réaliste : 200 tonnes par produit
+                this.stock.put(choco, 200000.0); // 200 tonnes = 200 000 kg
+            }
         }
+
         this.indicateurStockTotal.setValeur(this, getStockTotal());
 
-        this.prix = new HashMap<>();
+        // Initialisation des prix selon la qualité du chocolat
+        this.prixParProduit = new HashMap<>();
+        for (ChocolatDeMarque choco : Filiere.LA_FILIERE.getChocolatsProduits()) {
+            double prix = calculerPrixSelonQualite(choco);
+            this.prixParProduit.put(choco, prix);
+        }
+
+        journal.ajouter("Initialisation terminée : " + produits.size() + " produits en stock");
+    }
+
+    /**
+     * Calcule le prix selon la qualité du chocolat
+     * Stratégie : prix différenciés selon la qualité pour optimiser les marges
+     */
+    private double calculerPrixSelonQualite(ChocolatDeMarque choco) {
+        switch (choco.getChocolat()) {
+            case C_BQ: case C_BQ_E: return prixBaseBQ;
+            case C_MQ: case C_MQ_E: return prixBaseMQ;
+            case C_HQ: case C_HQ_E: return prixBaseHQ;
+            default: return prixBaseMQ; // Prix moyen par défaut
+        }
     }
 
 	public String getNom() {// NE PAS MODIFIER
 		return "EQ9";
 	}
-	
+
 	public String toString() {// NE PAS MODIFIER
 		return this.getNom();
 	}
@@ -60,24 +90,36 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	////////////////////////////////////////////////////////
 	//         En lien avec l'interface graphique         //
 	////////////////////////////////////////////////////////
-     
+
 		/**
          * @author Paul Juhel
 		 * @author Anass Ouisrani
-         */ 
+         */
 	public void next() {
 		int etape = Filiere.LA_FILIERE.getEtape();
-		this.journal.ajouter("ETAPE" + etape);
-		List<abstraction.eqXRomu.produits.ChocolatDeMarque> produits = abstraction.eqXRomu.filiere.Filiere.LA_FILIERE.getChocolatsProduits();
+		this.journal.ajouter("=== ETAPE " + etape + " ===");
+
+		List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
+
+		// Gérer TOUS les produits (pas seulement le premier)
 		if (produits != null && !produits.isEmpty()) {
-			IProduit produit = produits.get(0);
-			double quantiteActuelle = this.stock.getOrDefault(produit, 0.0);
-			this.stock.put(produit, quantiteActuelle + 10.0);
+			for (ChocolatDeMarque choco : produits) {
+				// Réapprovisionnement réaliste : +5 tonnes par produit par étape
+				double quantiteActuelle = this.stock.getOrDefault(choco, 0.0);
+				double ajout = 5000.0; // 5 tonnes = 5000 kg
+				this.stock.put(choco, quantiteActuelle + ajout);
+
+				journal.ajouter("📦 Réapprovisionnement " + choco.getNom() + " : +" + (ajout/1000) + " tonnes");
+			}
+		}
+
 		// Mettre à jour l'indicateur de stock total
 		this.indicateurStockTotal.setValeur(this, getStockTotal());
-		}
+
+		// Log du stock total
+		journal.ajouter("📊 Stock total : " + (getStockTotal()/1000) + " tonnes");
 	}
-		/** @author Anass Ouisrani*/ 
+		/** @author Anass Ouisrani*/
 	protected double getStockTotal() {
 		double total = 0.0;
 		for (double q : stock.values()) {
@@ -87,16 +129,16 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	}
 
 	public Color getColor() {// NE PAS MODIFIER
-		return new Color(245, 155, 185); 
+		return new Color(245, 155, 185);
 	}
 
 	public String getDescription() {
-		return "Bla bla bla";
+		return "Distributeur moderne avec stratégie de prix différenciés et gestion optimisée des stocks";
 	}
-     
+
 		/**
          * @author Anass Ouisrani
-         */ 
+         */
 	// Renvoie les indicateurs
 	public List<Variable> getIndicateurs() {
 		List<Variable> res = new ArrayList<Variable>();
@@ -113,7 +155,7 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	// Renvoie les journaux
 		/**
          * @author Paul Juhel
-         */ 
+         */
 	public List<Journal> getJournaux() {
 		List<Journal> res=new ArrayList<Journal>();
 		res.add(journal);
@@ -124,7 +166,7 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	//               En lien avec la Banque               //
 	////////////////////////////////////////////////////////
 
-	// Appelee en debut de simulation pour vous communiquer 
+	// Appelee en debut de simulation pour vous communiquer
 	// votre cryptogramme personnel, indispensable pour les
 	// transactions.
 	public void setCryptogramme(Integer crypto) {
@@ -134,13 +176,21 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	// Appelee lorsqu'un acteur fait faillite (potentiellement vous)
 	// afin de vous en informer.
 	public void notificationFaillite(IActeur acteur) {
+		if (acteur != null) {
+			journal.ajouter("💸 Information : " + acteur.getNom() + " a fait faillite");
+		}
 	}
 
 	// Apres chaque operation sur votre compte bancaire, cette
 	// operation est appelee pour vous en informer
 	public void notificationOperationBancaire(double montant) {
+		if (montant > 0) {
+			journal.ajouter("💰 Crédit bancaire : +" + montant + "€");
+		} else {
+			journal.ajouter("💸 Débit bancaire : " + montant + "€");
+		}
 	}
-	
+
 	// Renvoie le solde actuel de l'acteur
 	protected double getSolde() {
 		return Filiere.LA_FILIERE.getBanque().getSolde(Filiere.LA_FILIERE.getActeur(getNom()), this.cryptogramme);
@@ -162,36 +212,26 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 	}
 
 	public double getQuantiteEnStock(IProduit p, int cryptogramme) {
-        if (this.cryptogramme==cryptogramme) { 
-            return this.stock.getOrDefault(p, 0.0); 
+        if (this.cryptogramme==cryptogramme) {
+            return this.stock.getOrDefault(p, 0.0);
         } else {
-            return 0; 
+            return 0;
         }
     }
 	////////////////////////////////////////////////////////
     //         IDistributeurChocolatDeMarque              //
     ////////////////////////////////////////////////////////
+	//// @author Anass Ouisrani
 
 @Override
-	public double prix(ChocolatDeMarque choco) {
-		if (!prix.containsKey(choco)) {
-			switch (choco.getChocolat()) {
-				case C_HQ_E: return 26000.0;
-				case C_HQ:   return 22000.0;
-				case C_MQ_E: return 18000.0;
-				case C_MQ:   return 16000.0;
-				case C_BQ_E: return 14000.0;
-				case C_BQ:   return 12000.0;
-				default:     return 0.0;
-			}
-		}
-		return prix.get(choco);
-	}
+    public double prix(ChocolatDeMarque choco) {
+        return prixParProduit.getOrDefault(choco, prixBaseMQ);
+    }
 
 @Override
     public double quantiteEnVente(ChocolatDeMarque choco, int crypto) {
         if (crypto != this.cryptogramme) {
-            this.journal.ajouter("Tentative accès non autorisé quantiteEnVente");
+            this.journal.ajouter("🚫 Tentative accès non autorisé quantiteEnVente");
             return 0.0;
         }
         double qStock = this.stock.getOrDefault(choco, 0.0);
@@ -201,7 +241,7 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 @Override
     public double quantiteEnVenteTG(ChocolatDeMarque choco, int crypto) {
         if (crypto != this.cryptogramme) {
-            this.journal.ajouter("Tentative accès non autorisé quantiteEnVenteTG");
+            this.journal.ajouter("🚫 Tentative accès non autorisé quantiteEnVenteTG");
             return 0.0;
         }
         return quantiteEnVente(choco, crypto) * 0.10;
@@ -210,22 +250,22 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
 @Override
     public void vendre(ClientFinal client, ChocolatDeMarque choco, double quantite, double montant, int crypto) {
         if (crypto != this.cryptogramme) {
-            this.journal.ajouter("Tentative accès non autorisé vendre");
+            this.journal.ajouter("🚫 Tentative accès non autorisé vendre");
             return;
         }
         double stockActuel = this.stock.getOrDefault(choco, 0.0);
         if (quantite <= 0 || quantite > stockActuel) {
-            this.journal.ajouter("Stock insuffisant pour " + choco.getNom() + ": demandé " + quantite + " kg, dispo " + stockActuel + " kg");
+            this.journal.ajouter("❌ Stock insuffisant pour " + choco.getNom() + ": demandé " + (quantite/1000) + "t, dispo " + (stockActuel/1000) + "t");
             return;
         }
         this.stock.put(choco, stockActuel - quantite);
         this.indicateurStockTotal.setValeur(this, getStockTotal());
-        this.journal.ajouter("Vente de " + quantite + " kg de " + choco.getNom() + " pour " + montant + " €");
+        this.journal.ajouter("✅ Vente de " + (quantite/1000) + "t de " + choco.getNom() + " pour " + montant + " €");
 }
 
 @Override
     public void notificationRayonVide(ChocolatDeMarque choco, int crypto) {
         if (crypto != this.cryptogramme) return;
-        this.journal.ajouter("Rayon vide : " + choco.getNom());
+        this.journal.ajouter("🚨 RUPTURE STOCK : " + choco.getNom() + " - Rayon vide ! Augmenter les achats.");
     }
 }
