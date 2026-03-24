@@ -143,7 +143,7 @@ public class Approvisionnement2 extends Distributeur1Acteur {
         return total;
     }
 
-    private double methodeIntermediaireAchat(ChocolatDeMarque cdm, double besoin, double prixCible, double prixMax) {
+    protected double methodeIntermediaireAchat(ChocolatDeMarque cdm, double besoin, double prixCible, double prixMax) {
         // Logique à implémenter (Contrats Cadres / Enchères)
         return 0.0; 
     }

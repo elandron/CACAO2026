@@ -10,7 +10,7 @@ import abstraction.eqXRomu.produits.Gamme;
 import abstraction.eqXRomu.produits.IProduit;
 
 /** @author Ewen Landron */
-public class MiseEnRayon extends Approvisionnement2 {
+public class MiseEnRayon extends ContratCadre {
 
     public MiseEnRayon() {
         super();
