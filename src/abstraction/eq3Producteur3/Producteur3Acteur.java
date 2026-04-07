@@ -20,7 +20,7 @@ public class Producteur3Acteur implements IActeur {
 	public Plantation3 plantationeq3;
 	protected Journal journal_vente_bouse;
 	private Journal journal_stock;
-	private Gestion_couts3 gestionCouts;
+	public Gestion_couts3 gestionCouts;
 	public Journal journal_cout_periode;
 	public Agriculteurs3 agriculteurs;
 
@@ -40,10 +40,6 @@ public class Producteur3Acteur implements IActeur {
 	}
 	
 	public void initialiser() {
-		/** @author Guillaume Leroy */
-		this.stock.addStock(Feve.F_BQ , 250.0);
-		this.stock.addStock(Feve.F_MQ , 250.0);
-		this.stock.addStock(Feve.F_HQ , 250.0);
 	}
 
 	public String getNom() {// NE PAS MODIFIER

@@ -1,12 +1,9 @@
 package abstraction.eq1Producteur1;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import abstraction.eqXRomu.bourseCacao.IVendeurBourse;
 import abstraction.eqXRomu.encheres.Enchere;
-import abstraction.eqXRomu.encheres.MiseAuxEncheres;
 import abstraction.eqXRomu.produits.Feve;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.Feve;
