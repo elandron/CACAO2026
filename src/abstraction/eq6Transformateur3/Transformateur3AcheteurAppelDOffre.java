@@ -1,5 +1,11 @@
 package abstraction.eq6Transformateur3;
 
-public class Transformateur3AcheteurAppelDOffre {
+import abstraction.eqXRomu.appelDOffre.IAcheteurAO;
+
+public class Transformateur3AcheteurAppelDOffre extends Transformateur3VendeurAppelDOffre implements IAcheteurAO{
+
+    public Transformateur3AcheteurAppelDOffre() {
+        super();
+    }
     
 }
