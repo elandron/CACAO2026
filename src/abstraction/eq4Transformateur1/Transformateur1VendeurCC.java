@@ -56,14 +56,4 @@ public class Transformateur1VendeurCC extends Transformateur1AcheteurBourse impl
         }
     }
 
-    public void next(){
-        super.next();
-    SuperviseurVentesContratCadre sup =null;
-    sup= (SuperviseurVentesContratCadre)(Filiere.LA_FILIERE.getActeur("Sup.CCadre"));
-    List<IAcheteurContratCadre> acheteurs= sup.getAcheteurs(ProntellaM);
-    Echeancier e= new Echeancier(Filiere.LA_FILIERE.getEtape()+1,1,this.getStocksProduit(ProntellaM));
-        if (!acheteurs.isEmpty()) {
-        sup.demandeVendeur(acheteurs.get(0), this, ProntellaM, e, cryptogramme, false);
-        }
-    }
 }
