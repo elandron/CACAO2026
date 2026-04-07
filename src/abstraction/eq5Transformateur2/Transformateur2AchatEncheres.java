@@ -70,15 +70,19 @@ public class Transformateur2AchatEncheres extends Transformateur2ProductionChoco
 	public void notifierAchatAuxEncheres(Enchere propositionRetenue) {
 		Double prixTonne=propositionRetenue.getPrixTonne();
 		Double quantiteEnT=propositionRetenue.getQuantiteT();
-		IProduit f = propositionRetenue.getProduit();
+		IProduit produit = propositionRetenue.getProduit();
+		Feve f=(Feve) produit;
 		this.getJournaux().get(1).ajouter("Achat effectué de: "+quantiteEnT+" fèves "+f+" au prix/tonne de "+prixTonne);
 		this.getJournaux().get(4).ajouter("Achat effectué de: "+quantiteEnT+" fèves "+f+" au prix/tonne de "+prixTonne);
+
+		this.add_feve(quantiteEnT,f);
 	}
 
 	public void notifierEnchereNonRetenue(Enchere propositionNonRetenue) {
 		Double prixTonne=propositionNonRetenue.getPrixTonne();
 		Double quantiteEnT=propositionNonRetenue.getQuantiteT();
-		IProduit f = propositionNonRetenue.getProduit();
-		this.getJournaux().get(4).ajouter("L'achat de: "+quantiteEnT+" fèves "+f+" au prix/tonne de "+prixTonne+" n'a pas été retenue");
+		IProduit produit = propositionNonRetenue.getProduit();
+
+		this.getJournaux().get(4).ajouter("L'achat de: "+quantiteEnT+" de "+produit+" au prix/tonne de "+prixTonne+" n'a pas été retenue");
 	}
 }
