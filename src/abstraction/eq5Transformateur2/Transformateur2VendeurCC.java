@@ -19,7 +19,7 @@ import abstraction.eqXRomu.bourseCacao.BourseCacao;
  * @author Pierre GUTTIEREZ
  */
  
-public class Transformateur2VendeurCC extends Transformateur2ProductionChocolat implements IVendeurContratCadre{
+public class Transformateur2VendeurCC extends Transformateur2AchatAppelOffre implements IVendeurContratCadre{
 
     public Transformateur2VendeurCC() {
         super();
