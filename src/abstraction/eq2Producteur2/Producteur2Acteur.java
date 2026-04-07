@@ -151,11 +151,7 @@ public class Producteur2Acteur implements IActeur, IVendeurBourse {
 
 	public double getQuantiteEnStock(IProduit p, int cryptogramme) {
 		if (this.cryptogramme==cryptogramme) { // c'est donc bien un acteur assermente qui demande a consulter la quantite en stock
-			if (p instanceof Feve) {
-				Variable v = this.stocks.get((Feve)p);
-				return v != null ? v.getValeur() : 0.0;
-			}
-			return 0.0;
+			return 0; // A modifier
 		} else {
 			return 0; // Les acteurs non assermentes n'ont pas a connaitre notre stock
 		}
