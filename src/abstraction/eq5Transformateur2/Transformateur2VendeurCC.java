@@ -50,7 +50,12 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
 	}
 
 	public void notificationNouveauContratCadre(ExemplaireContratCadre contrat){
-		this.getJournaux().get(4).ajouter(contrat.toString()+ "\n");
+		if (contrat.getVendeur().equals(this)) {
+			this.getJournaux().get(4).ajouter(contrat.toString()+ "\n");
+		}
+		else{
+		this.getJournaux().get(3).ajouter(contrat.toString()+ "\n");
+		}
 	}
 
 	public double livrer(IProduit produit, double quantite, ExemplaireContratCadre contrat){
