@@ -37,15 +37,25 @@ public class Approvisionnement2 extends Distributeur1Acteur {
     /**
      * Initialise les prix avec les données historiques (1 an en arrière)
      */
-    public void initialiserPrixReference() {
-        List<ChocolatDeMarque> tousLesChocolats = Filiere.LA_FILIERE.getChocolatsProduits();
-        int etapeReference = Filiere.LA_FILIERE.getEtape() - 24;
-
-        for (ChocolatDeMarque cdm : tousLesChocolats) {
-            double prixHisto = Filiere.LA_FILIERE.prixMoyen(cdm, etapeReference);
-            // Sécurité si le produit n'existait pas il y a un an
-            if (prixHisto <= 0) prixHisto = 1000.0; 
-            this.prixDAchat.put(cdm, prixHisto);
+    private void initialiserPrixReferenceUniquementChocolats() {
+        // On récupère directement la liste des chocolats de marque enregistrés dans la filière
+        for (ChocolatDeMarque cdm : Filiere.LA_FILIERE.getChocolatsDeMarque()) {
+        
+            int etapeActuelle = Filiere.LA_FILIERE.getEtape();
+            int etapeCible = Math.max(0, etapeActuelle - 1);
+            
+            double prixRef = Filiere.LA_FILIERE.prixMoyen(cdm, etapeCible);
+            
+            if (prixRef <= 0) {
+                // Initialisation par défaut selon la gamme
+                switch (cdm.getGamme()) {
+                    case HQ: prixRef = 15.0; break;
+                    case MQ: prixRef = 10.0; break;
+                    case BQ: prixRef = 6.0;  break;
+                    default: prixRef = 8.0;
+                }
+            }
+            this.prixDAchat.put(cdm, prixRef);
         }
     }
 
