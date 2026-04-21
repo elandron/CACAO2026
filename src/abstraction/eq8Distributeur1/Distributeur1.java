@@ -82,8 +82,11 @@ public class Distributeur1 extends MiseEnRayon {
 		this.journal4.ajouter("Numéro de tour : " + Filiere.LA_FILIERE.getEtape());
 		b.payerCout(this, this.cryptogramme, "Frais de Rayonnage", TailleRayon*0.01);
 		this.journal4.ajouter("Frais de Rayon : "+TailleRayon*0.01 +" €");
-		b.payerCout(this, this.cryptogramme, "Frais de Stockage", v1*0.01);
-		this.journal4.ajouter("Frais de Stockage : "+v1*0.01+" €");
+		if(v1!=0){
+			b.payerCout(this, this.cryptogramme, "Frais de Stockage", v1*0.01);
+			this.journal4.ajouter("Frais de Stockage : "+v1*0.01+" €");
+		}
+	
 		this.journal4.ajouter("----------------------------------------------");
 		
 	}
