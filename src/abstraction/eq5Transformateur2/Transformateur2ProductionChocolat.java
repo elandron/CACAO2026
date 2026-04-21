@@ -72,12 +72,14 @@ public class Transformateur2ProductionChocolat extends Transformateur2Production
             this.add_chocolatDeMarque("FerraraMQ",quantite);
         }
     }
-
+/** @author Maxence
+* notre chocolat BQ a 45% de cacao
+ */
     public void ProductionFerraraBQ(Double quantite){
         Double quantiteFeveBQ=quantite*0.45;
         Double quantiteMP=quantite*0.65;
-        if(quantiteFeveBQ<=this.getStock_chocolat(Chocolat.C_HQ)){
-            this.remove_feve(quantiteFeveBQ,Feve.F_HQ);
+        if(quantiteFeveBQ<=this.getStock_chocolat(Chocolat.C_BQ)){
+            this.remove_feve(quantiteFeveBQ,Feve.F_BQ);
             this.add_chocolatDeMarque("FerraraBQ",quantite);
         }
         Filiere.LA_FILIERE.getBanque().payerCout(this, cryptogramme, "Achat de MP pour production de chocolat FerraraBQ", quantiteMP*prix_MP);
