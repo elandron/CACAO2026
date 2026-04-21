@@ -22,6 +22,7 @@ public class Distributeur1 extends MiseEnRayon {
 		List<ChocolatDeMarque> p=Filiere.LA_FILIERE.getChocolatsProduits();
 		Banque b=Filiere.LA_FILIERE.getBanque();
 		Variable v=this.getvolumestock();
+		double vr=this.getvolumerayon();
 		double v1=v.getValeur();
 		double volumeCibleTotal = 3600000.0;
 
@@ -39,6 +40,7 @@ public class Distributeur1 extends MiseEnRayon {
 		}
 		this.lancerApprovisionnementGeneral(volumeCibleTotal);
 		this.executerMiseEnRayon();
+		
 
 		//JournalActions
 		this.journal3.ajouter("Numéro de tour : " + Filiere.LA_FILIERE.getEtape());
@@ -71,10 +73,12 @@ public class Distributeur1 extends MiseEnRayon {
 		}
 		this.journal2.ajouter("----------------------------------------------");
 
+		/** 
 		//Journal Frais
 		if(this.volumerayon<this.TailleRayon){
 			this.TailleRayon=this.volumerayon;
 		}
+		*/
 		this.journal4.ajouter("Numéro de tour : " + Filiere.LA_FILIERE.getEtape());
 		b.payerCout(this, this.cryptogramme, "Frais de Rayonnage", TailleRayon*0.01);
 		this.journal4.ajouter("Frais de Rayon : "+TailleRayon*0.01 +" €");

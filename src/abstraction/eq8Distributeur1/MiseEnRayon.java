@@ -25,6 +25,7 @@ public class MiseEnRayon extends AppelOffre {
         remplirEspaceGamme(Gamme.BQ, espaceTotal * 0.20);
         remplirEspaceGamme(Gamme.MQ, espaceTotal * 0.45);
         remplirEspaceGamme(Gamme.HQ, espaceTotal * 0.35);
+        System.out.println("ok" + this.Rayon);
     }
 
     private void remplirEspaceGamme(Gamme gamme, double espaceAlloueGamme) {

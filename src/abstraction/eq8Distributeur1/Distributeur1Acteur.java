@@ -25,12 +25,15 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 	protected Journal journal5;/** @author Ewen Landron */
 	protected Variable volumeStock;/** @author Alexandre Cornet */
 	protected HashMap<IProduit, Double> Rayon;/** @author Alexandre Cornet */
+	protected HashMap<IProduit, Double> RayonPrecedent;/** @author Alexandre Cornet */
 	protected int cryptogramme;/** @author Alexandre Cornet */
 	protected HashMap<IProduit, Double> Stock;/** @author Alexandre Cornet */
 	protected HashMap<IProduit, Double> Prix;/** @author Alexandre Cornet */
 	protected double TailleRayon;/** @author Alexandre Cornet */
 	protected double volumerayon;/** @author Alexandre Cornet */
 	protected HashMap<ChocolatDeMarque, Double> ChocolatsAchetes;/** @author Lucas Levillain */
+	protected double CoutParArticle; /** @author Lucas Levillain */
+	protected HashMap<ChocolatDeMarque, Double> prixDAchat; /** @author Lucas Levillain */
 	/**
          * @author Alexandre Cornet
 		 * @author Ewen Landron
@@ -45,11 +48,15 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 		this.journal5 = new Journal("Journal EQ8 Contrats ", this);
 		this.volumeStock=new Variable("EQ8 StockTotal", this); 
 		this.Rayon = new HashMap<IProduit, Double>(); 
+		
+		this.RayonPrecedent = new HashMap<IProduit, Double>(); 
 		this.Stock = new HashMap<IProduit, Double>();
 		this.Prix = new HashMap<IProduit, Double>();
 		this.ChocolatsAchetes = new HashMap<ChocolatDeMarque, Double>();
 		this.TailleRayon = 1000.0;
 		this.volumerayon = 0.0;
+		this.CoutParArticle = 0.0;
+		this.prixDAchat = new HashMap<ChocolatDeMarque, Double>();
 	}
 	/** @author Alexandre Cornet */
 	public void initialiser() {
@@ -306,9 +313,9 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 	public double getPrixProduit(IProduit p, int cryptogramme) {
 		if (this.cryptogramme==cryptogramme) { // c'est donc bien un acteur assermente qui demande a consulter la quantite en stock
 			/** @author Lucas Levillain */
-			/**
-			this.Prix(p).put(IProduit)(p, value : (CoutParArticle.getOrDefault() + prixDAchat.getOrDefault())*1,1)
-			 */
+			
+			this.Prix.put(p, (CoutParArticle + prixDAchat.getOrDefault(p, 1000.0)) * 1.1);
+			
 			return this.Prix.get(p);
 		} else {
 			return 0; // Les acteurs non assermentes n'ont pas a connaitre notre stock
