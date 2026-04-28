@@ -29,12 +29,9 @@ public class Distributeur1 extends MiseEnRayon {
 		// On remet tout les produits du rayon en stock pour simplifier les calculs
 		for (int i = 0; i < p.size(); i++) {
             double q = this.getQuantiteEnStock(p.get(i), this.cryptogramme);
-			System.out.println("Quantité en stock de "+p.get(i)+" : "+q+"T");
 			double f = this.getQuantiteEnRayon(p.get(i), this.cryptogramme);
-			System.out.println("Quantité en rayon de "+p.get(i)+" : "+f+"T");
             this.Rayon.put(p.get(i),0.0);
 			this.Stock.put(p.get(i),q+f);
-			System.out.println("Quantité en stock de "+p.get(i)+" : "+q+"T");
         }
 		//Choix de l'acteur
 		this.trierChocolatsParPrix();
@@ -45,7 +42,6 @@ public class Distributeur1 extends MiseEnRayon {
 		this.executerMiseEnRayon();
 		for (int j=0; j<p.size(); j++){
 			double f=this.getQuantiteEnRayon(p.get(j),this.cryptogramme);
-			System.out.println("Quantité en rayon de "+p.get(j)+" : "+f+"T");
 		}
 
 		//JournalActions
@@ -67,7 +63,6 @@ public class Distributeur1 extends MiseEnRayon {
 		this.journal1.ajouter("Quantité en rayon : "+this.volumerayon+"T");
 		for (int i=0; i<p.size(); i++){
 			double q=this.getQuantiteEnRayon(p.get(i),this.cryptogramme);
-			System.out.println("Quantité en rayon de "+p.get(i)+" : "+q+"T");
 			this.journal1.ajouter(p.get(i)+" : "+q+"T");
 		}
 		this.journal1.ajouter("----------------------------------------------");
