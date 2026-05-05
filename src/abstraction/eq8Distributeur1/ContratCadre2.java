@@ -8,6 +8,7 @@ import abstraction.eqXRomu.contratsCadres.ExemplaireContratCadre;
 import abstraction.eqXRomu.contratsCadres.IAcheteurContratCadre;
 import abstraction.eqXRomu.contratsCadres.IVendeurContratCadre;
 import abstraction.eqXRomu.contratsCadres.SuperviseurVentesContratCadre;
+import abstraction.eqXRomu.filiere.Banque;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.ChocolatDeMarque;
 import abstraction.eqXRomu.produits.IProduit;
@@ -153,5 +154,7 @@ public class ContratCadre2 extends Approvisionnement implements IAcheteurContrat
         double stockActuel = this.Stock.getOrDefault(p, 0.0);
         this.Stock.put(p, stockActuel + quantiteEnTonnes);
         this.journal5.ajouter("Réception de " + quantiteEnTonnes + "T de " + p);
+        Banque b=Filiere.LA_FILIERE.getBanque();
+        b.payerCout(this, cryptogramme, "Paiement contrat cadre", contrat.getPaiementAEffectuerAuStep());
     }
 }
