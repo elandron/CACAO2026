@@ -131,56 +131,56 @@ public class Transformateur2Stock extends Transformateur2Acteur{
             this.getJournaux().get(1).ajouter("Déstockage de " + (n).toString()+ " de fève de qualité " + (q).toString() + "\n");
             this.stock_feve_affichage.retirer(this,n);
 
-            if(q==Feve.F_HQ){
-                Double resteAEnlever=n;
-                while (resteAEnlever>0.0) {
-                    resteAEnlever=this.sacsHQ.get(0).remove_feve(resteAEnlever);
-                    if(this.sacsHQ.get(0).getQuantite()==0.0){
+            if(q == Feve.F_HQ){
+                Double resteAEnlever = n;
+                while (resteAEnlever > 0.001 && !this.sacsHQ.isEmpty()) {
+                    resteAEnlever = this.sacsHQ.get(0).remove_feve(resteAEnlever);
+                    if(this.sacsHQ.get(0).getQuantite() <= 0.001){
                         this.sacsHQ.remove(0);
                     }
                 }
-                }
-            if(q==Feve.F_HQ_E){
-                Double resteAEnlever=n;
-                while (resteAEnlever>0.0) {
-                    resteAEnlever=this.sacsHQ_E.get(0).remove_feve(resteAEnlever);
-                    if(this.sacsHQ_E.get(0).getQuantite()==0.0){
+            }
+            if(q == Feve.F_HQ_E){
+                Double resteAEnlever = n;
+                while (resteAEnlever > 0.001 && !this.sacsHQ_E.isEmpty()) {
+                    resteAEnlever = this.sacsHQ_E.get(0).remove_feve(resteAEnlever);
+                    if(this.sacsHQ_E.get(0).getQuantite() <= 0.001){
                         this.sacsHQ_E.remove(0);
                     }
                 }
             }
-            if(q==Feve.F_MQ){
-                Double resteAEnlever=n;
-                while (resteAEnlever>0.0) {
-                    resteAEnlever=this.sacsMQ.get(0).remove_feve(resteAEnlever);
-                    if(this.sacsMQ.get(0).getQuantite()==0.0){
+            if(q == Feve.F_MQ){
+                Double resteAEnlever = n;
+                while (resteAEnlever > 0.001 && !this.sacsMQ.isEmpty()) {
+                    resteAEnlever = this.sacsMQ.get(0).remove_feve(resteAEnlever);
+                    if(this.sacsMQ.get(0).getQuantite() <= 0.001){
                         this.sacsMQ.remove(0);
                     }
                 }
             }
-            if(q==Feve.F_MQ_E){
-                Double resteAEnlever=n;
-                while (resteAEnlever>0.0) {
-                    resteAEnlever=this.sacsMQ_E.get(0).remove_feve(resteAEnlever);
-                    if(this.sacsMQ_E.get(0).getQuantite()==0.0){
+            if(q == Feve.F_MQ_E){
+                Double resteAEnlever = n;
+                while (resteAEnlever > 0.001 && !this.sacsMQ_E.isEmpty()) {
+                    resteAEnlever = this.sacsMQ_E.get(0).remove_feve(resteAEnlever);
+                    if(this.sacsMQ_E.get(0).getQuantite() <= 0.001){
                         this.sacsMQ_E.remove(0);
                     }
                 }
             }
-            if(q==Feve.F_BQ){
-                Double resteAEnlever=n;
-                while (resteAEnlever>0.0) {
-                    resteAEnlever=this.sacsBQ.get(0).remove_feve(resteAEnlever);
-                    if(this.sacsBQ.get(0).getQuantite()==0.0){
+            if(q == Feve.F_BQ){
+                Double resteAEnlever = n;
+                while (resteAEnlever > 0.001 && !this.sacsBQ.isEmpty()) {
+                    resteAEnlever = this.sacsBQ.get(0).remove_feve(resteAEnlever);
+                    if(this.sacsBQ.get(0).getQuantite() <= 0.001){
                         this.sacsBQ.remove(0);
                     }
                 }
             }
-            else{
-                Double resteAEnlever=n;
-                while (resteAEnlever>0.0) {
-                    resteAEnlever=this.sacsBQ_E.get(0).remove_feve(resteAEnlever);
-                    if(this.sacsBQ_E.get(0).getQuantite()==0.0){
+            else if (q == Feve.F_BQ_E) { // J'ai remplacé votre "else" par un "else if" plus explicite et sécurisé
+                Double resteAEnlever = n;
+                while (resteAEnlever > 0.001 && !this.sacsBQ_E.isEmpty()) {
+                    resteAEnlever = this.sacsBQ_E.get(0).remove_feve(resteAEnlever);
+                    if(this.sacsBQ_E.get(0).getQuantite() <= 0.001){
                         this.sacsBQ_E.remove(0);
                     }
                 }
