@@ -9,7 +9,6 @@ import abstraction.eqXRomu.general.Journal;
 
 /**
 
-
  */
 public class EQ9_GestionnaireMarques {
     
