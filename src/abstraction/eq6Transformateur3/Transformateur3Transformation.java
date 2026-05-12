@@ -283,20 +283,22 @@ public class Transformateur3Transformation extends Transformateur3Acteur{
 
     // Règle : pour 100 T de chocolat à p% cacao, il faut 100*p T de fèves
     // Donc : quantité de chocolat produite = quantité de fèves utilisée / p
-       double quantiteChocolatProduite = quantiteFevesUtilisee / pourcentageCacao;
+        double quantiteChocolatProduite = quantiteFevesUtilisee / pourcentageCacao;
 
     // Retrait des fèves du stock
-       this.stockFeve.retirerQuantite(feve, quantiteFevesUtilisee);
+        this.stockFeve.retirerQuantite(feve, quantiteFevesUtilisee);
 
-    // Ajout du chocolat au stock
-       this.stockChocolat.ajouterQuantite(chocolatProduit, quantiteChocolatProduite);
-
-       if (chocolatProduit == Chocolat.C_MQ || chocolatProduit == Chocolat.C_HQ && feve.isEquitable()) {
-           double stockActuel = this.getStockProduit(this.LamborghiniduCacao);
-           this.setStockProduit(this.LamborghiniduCacao, stockActuel + quantiteChocolatProduite);
+        if (chocolatProduit == Chocolat.C_HQ_E) {
+        double stockActuel = this.getStockProduit(this.LamborghiniduCacao);
+        this.setStockProduit(this.LamborghiniduCacao, stockActuel + quantiteChocolatProduite);
+        journaltransfo.ajouter("Ajout de " + quantiteChocolatProduite + " T de " + this.LamborghiniduCacao + " au stock de chocolat de marque");
+        } else if (chocolatProduit == Chocolat.C_MQ_E) {
+            double stockActuel = this.getStockProduit(this.Chocoenbien);
+            this.setStockProduit(this.Chocoenbien, stockActuel + quantiteChocolatProduite);
+            journaltransfo.ajouter("Ajout de " + quantiteChocolatProduite + " T de " + this.Chocoenbien + " au stock de chocolat de marque");
         } 
         else {
-           this.stockChocolat.ajouterQuantite(chocolatProduit, quantiteChocolatProduite);
+            this.stockChocolat.ajouterQuantite(chocolatProduit, quantiteChocolatProduite);
         }
 
     // Coût calculé à partir des fèves utilisées et du chocolat produit

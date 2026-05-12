@@ -114,7 +114,7 @@ public class Transformateur3VendeurAppelDOffre extends Transformateur3VendeurAux
 		ChocolatDeMarque cm = (ChocolatDeMarque)(propositionRefusee.getProduit());
 		double px = propositionRefusee.getPrixT();
 		double quantite = propositionRefusee.getQuantiteT();
-		prixAO.get(cm).add(px*0.92);
+		prixAO.get(cm).add(px*0.95);
 		journalAO.ajouter("   Echec de vente par AO de "+quantite+" T de "+cm+" au prix de  "+px);
 		if (prixAO.get(cm).size()>10) {
 			prixAO.get(cm).remove(0);

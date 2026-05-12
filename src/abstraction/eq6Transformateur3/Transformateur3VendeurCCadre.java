@@ -44,7 +44,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
     }
 
     public double propositionPrix(ExemplaireContratCadre contrat){
-        double prix = 9000;
+        double prix = 50000000.0;
         if (contratAvecDistributeur(contrat)) {
             this.journalCCVente.ajouter("Proposition prix vendeur pour contrat " + contrat.getNumero() + " = " + prix);
         }
@@ -84,7 +84,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
         if (disponible <= 0) {
             this.journalCCVente.ajouter("Livraison impossible pour " + produit + " (contrat " + contrat.getNumero() + ") : stock epuis\u00e9");
             return 0;
-        } else if (disponible >= quantite) {
+        } if (disponible >= quantite) {
             this.setStockProduit(produit, disponible - quantite);
             this.journalCCVente.ajouter("Livraison de " + quantite + " T de " + produit + " pour contrat " + contrat.getNumero() + " (stock restant=" + (disponible - quantite) + ")");
             return quantite;
@@ -103,7 +103,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
         SuperviseurVentesContratCadre sup = null;
         sup = (SuperviseurVentesContratCadre)(Filiere.LA_FILIERE.getActeur("Sup.CCadre"));
         List<IAcheteurContratCadre> acheteurs = sup.getAcheteurs(LamborghiniduCacao);
-        if (this.getStockProduit(LamborghiniduCacao) > 200 && !acheteurs.isEmpty()) {
+        if (this.getStockProduit(LamborghiniduCacao) > 500 && !acheteurs.isEmpty()) {
             IAcheteurContratCadre acheteur = acheteurs.get(0);
             if (acheteur instanceof IDistributeurChocolatDeMarque) {
                 Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 2, this.getStockProduit(LamborghiniduCacao) / 2);
@@ -112,7 +112,7 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
             }
         }
 
-        if (this.getStockProduit(Chocoenbien) > 200 && !acheteurs.isEmpty()) {
+        if (this.getStockProduit(Chocoenbien) > 800 && !acheteurs.isEmpty()) {
             IAcheteurContratCadre acheteur = acheteurs.get(0);
             if (acheteur instanceof IDistributeurChocolatDeMarque) {
                 Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 2, this.getStockProduit(Chocoenbien) / 2);
