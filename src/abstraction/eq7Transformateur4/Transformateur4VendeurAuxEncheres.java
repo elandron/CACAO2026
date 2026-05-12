@@ -30,11 +30,13 @@ public class Transformateur4VendeurAuxEncheres extends Transformateur4Vente impl
 					this.get_StockChoco_BQ().setValeur(this, this.get_StockChoco_BQ().getValeur()-retenue.getMiseAuxEncheres().getQuantiteT());
 					this.journal_vente_enchere.ajouter("vente de "+retenue.getMiseAuxEncheres().getQuantiteT()+" T a "+retenue.getAcheteur().getNom());
 				}
+				/* 
 				Enchere retenue2 = superviseur.vendreAuxEncheres(this, cryptogramme, getChocolatsProduits().get(0), 250000.0);
 				
 				if (retenue2!=null) {
 					this.get_StockChoco_BQ().setValeur(this, this.get_StockChoco_BQ().getValeur()-retenue2.getMiseAuxEncheres().getQuantiteT());
 					this.journal_vente_enchere.ajouter("vente de "+retenue2.getMiseAuxEncheres().getQuantiteT()+" T a "+retenue2.getAcheteur().getNom());} 
+					*/
 				else {
 					this.journal_vente_enchere.ajouter("pas d'offre retenue");
 				}
