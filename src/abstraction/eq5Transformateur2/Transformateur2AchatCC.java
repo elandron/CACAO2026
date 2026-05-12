@@ -63,13 +63,13 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
 	public Echeancier contrePropositionDeLAcheteur(ExemplaireContratCadre contrat){
 			Echeancier echeancier=contrat.getEcheancier();
 			superviseurCC.recapitulerContratsEnCours();;
-			if(echeancier.getNbEcheances()<6){
+			if(echeancier.getNbEcheances()<11){
 				return echeancier;
 			}
 			else{
 				Integer debut = echeancier.getStepDebut();
 				Echeancier proposition = new Echeancier(debut);
-				for (int index = debut; index < debut+5; index++) {
+				for (int index = debut; index < debut+10; index++) {
 					proposition.ajouter(echeancier.getQuantite(index));
 				}
 				if(proposition.echeancierAcceptable()){
@@ -141,7 +141,7 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
 		if (p instanceof Feve){
 			Feve f = (Feve) p;
 			this.add_feve(quantiteEnTonnes, f);
-			this.getJournaux().get(3).ajouter("Réception de " + quantiteEnTonnes + " T de " + f + " via Contrat Cadre\n");
+			this.getJournaux().get(3).ajouter("Réception de " + quantiteEnTonnes + " T de " + f + " via Contrat Cadre de " + contrat.getVendeur().getNom() + "\n");
 		}
 	}
 
@@ -193,7 +193,7 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
                     // On essaie les vendeurs un par un. Si un contrat est signé, on s'arrête.
                     for (IVendeurContratCadre vendeur : vendeurs) {
                         
-                        Echeancier echeancier = new Echeancier(Filiere.LA_FILIERE.getEtape() + 1, 10, quantiteAManquer / 10.0);
+                        Echeancier echeancier = new Echeancier(Filiere.LA_FILIERE.getEtape() + 1, 10, quantiteAManquer/10.0 );
                         
                         // On stocke le résultat de la demande dans une variable
                         ExemplaireContratCadre nouveauContrat = ((SuperviseurVentesContratCadre) Filiere.LA_FILIERE.getActeur("Sup.CCadre")).demandeAcheteur(this, vendeur, f, echeancier, cryptogramme, false);

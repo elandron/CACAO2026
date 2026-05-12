@@ -13,7 +13,7 @@ public class Transformateur2FabriquantChocolatDeMarque extends Transformateur2Pr
         ArrayList<ChocolatDeMarque> liste = new ArrayList<ChocolatDeMarque>(3);
         ChocolatDeMarque FerraraHQ = new ChocolatDeMarque(Chocolat.C_HQ,"Ferrara Rocher", 100);
         ChocolatDeMarque FerraraMQ = new ChocolatDeMarque(Chocolat.C_MQ,"Ferrara Rocher", 100);
-        ChocolatDeMarque FerraraBQ = new ChocolatDeMarque(Chocolat.C_BQ,"Ferrara Rocher", 100);
+        ChocolatDeMarque FerraraBQ = new ChocolatDeMarque(Chocolat.C_BQ,"Ferrara Rocher", 45);
         liste.add(FerraraHQ);
         liste.add(FerraraMQ);
         liste.add(FerraraBQ);
