@@ -48,8 +48,11 @@ public class Plantation {
             this.etat = 2;
         }
 
-        if(age<= 960 && age > 960){
+        if(age <= 960 && age > 600){
             this.etat = 3;
+        }
+        else if(age > 960){
+            this.etat = 10;
         }
 
         else{
