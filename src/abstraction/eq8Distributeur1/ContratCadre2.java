@@ -36,15 +36,22 @@ public class ContratCadre2 extends Approvisionnement implements IAcheteurContrat
      */
     private void verifierEtInitialiserParametres(ExemplaireContratCadre contrat) {
         if (!this.lancement_CC) {
-            // Cast explicite en IProduit pour corriger le Type Mismatch
             IProduit p = (IProduit) contrat.getProduit();
             
-            // On récupère le prix de vente estimé dans la classe parente
+            // 1. Gestion du prix
             this.prixCibleCourant = this.prixDAchat.getOrDefault(p, 1000.0);
-            this.prixMaxCourant = this.prixCibleCourant * 1.5;
+            this.prixMaxCourant = this.prixCibleCourant * 1.3;
             
-            // On définit un besoin par défaut (10 tonnes par défaut)
-            this.besoinCourant = 10000.0; 
+            // 2. Gestion du besoin avec sécurité TG
+            double besoinParDefaut = 10000.0; // 10000 tonnes par étape par exemple
+            
+            if (contrat.getTeteGondole()) {
+                // Si le vendeur impose la TG, on ne peut pas accepter plus que notre place restante
+                double placeLibreTG = this.getPlaceRestanteTG();
+                this.besoinCourant = Math.min(besoinParDefaut, placeLibreTG);
+            } else {
+                this.besoinCourant = besoinParDefaut;
+            }
         }
     }
 
@@ -54,17 +61,18 @@ public class ContratCadre2 extends Approvisionnement implements IAcheteurContrat
         this.besoinCourant = besoinParEtape;
         this.prixCibleCourant = prixCible;
         this.prixMaxCourant = prixMax;
-        this.lancement_CC = true; // On marque qu'on est à l'initiative
 
         SuperviseurVentesContratCadre sup = (SuperviseurVentesContratCadre) (Filiere.LA_FILIERE.getActeur("Sup.CCadre"));
         List<IVendeurContratCadre> vendeurs = sup.getVendeurs(cdm);
 
-        if (vendeurs.size() > 0) {
-            Echeancier ech = new Echeancier(Filiere.LA_FILIERE.getEtape() + 1, 12, besoinParEtape);
-            // On lance la négociation
-            sup.demandeAcheteur(this, vendeurs.get(0), cdm, ech, this.cryptogramme, false);
+        if (vendeurs != null && vendeurs.size() > 0) {
+            // Création d'un échéancier sur 12 étapes
+            Echeancier ech = new Echeancier(Filiere.LA_FILIERE.getEtape(), 12, besoinParEtape);
+            
+            // On lance la négociation en précisant si on veut de la TG ou non
+            // Le dernier paramètre 'TG' est celui que tu as calculé dans parcourirEtAcheter
+            sup.demandeAcheteur(this, vendeurs.get(0), cdm, ech, this.cryptogramme, TG);
         }
-        this.lancement_CC = false; // Reset après la négociation
     }
 
     public boolean achete(IProduit produit) {
