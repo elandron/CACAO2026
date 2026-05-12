@@ -215,8 +215,13 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
                 return prixPropose;
             }
 
-            double prixInitial = contrat.getListePrix().get(0);
-            int tourNegociation = contrat.getListePrix().size() / 2;
+            List<Double> listePrix = contrat.getListePrix();
+            if (listePrix.isEmpty()) {
+                this.journalCC.ajouter("Abandon CC : liste des prix vide");
+                return -1.0;
+            }
+            double prixInitial = listePrix.get(0);
+            int tourNegociation = listePrix.size() / 2;
             double ratio = 0.70;
             for (int i = 0; i < tourNegociation && ratio < 0.80; i++) {
                 ratio += 0.05;
@@ -260,8 +265,13 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
             return prixPropose;
         }
 
-        double prixInitial = contrat.getListePrix().get(0);
-        int tourNegociation = contrat.getListePrix().size() / 2;
+        List<Double> listePrix = contrat.getListePrix();
+        if (listePrix.isEmpty()) {
+            this.journalCC.ajouter("Abandon CC : liste des prix vide (pas de ref marché)");
+            return -1.0;
+        }
+        double prixInitial = listePrix.get(0);
+        int tourNegociation = listePrix.size() / 2;
         double ratio = 0.70;
         for (int i = 0; i < tourNegociation && ratio < 0.80; i++) {
             ratio += 0.05;
