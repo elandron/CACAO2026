@@ -290,7 +290,6 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
     //         MÉTHODES UTILITAIRES
 
     
-
     protected double restantDu(IProduit produit) {
         double res = 0.0;
         for (ExemplaireContratCadre contrat : this.contratsEnCours) {
