@@ -63,15 +63,15 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
 	public Echeancier contrePropositionDeLAcheteur(ExemplaireContratCadre contrat){
 			Echeancier echeancier=contrat.getEcheancier();
 			superviseurCC.recapitulerContratsEnCours();;
-			if(echeancier.getNbEcheances()<11){
+			if(echeancier.getNbEcheances()<6 && echeancier.getQuantiteTotale() > 5*10000){
 				return echeancier;
 			}
 			else{
 				Integer debut = echeancier.getStepDebut();
 				Echeancier proposition = new Echeancier(debut);
-				for (int index = debut; index < debut+10; index++) {
-					if(echeancier.getQuantite(index)<2000){
-						proposition.ajouter(2000);
+				for (int index = debut; index < debut+5; index++) {
+					if(echeancier.getQuantite(index)<10000){
+						proposition.ajouter(10000);
 					}
 					else{proposition.ajouter(echeancier.getQuantite(index));}
 				}

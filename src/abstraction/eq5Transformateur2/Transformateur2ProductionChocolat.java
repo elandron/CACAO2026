@@ -133,7 +133,7 @@ public class Transformateur2ProductionChocolat extends Transformateur2Stock {
         
         if (quantiteDemandee > 0) {
             double fevesBQUtilisees = quantiteDemandee * 0.45;
-            double quantiteMP = quantiteDemandee * 0.65;
+            double quantiteMP = quantiteDemandee * 0.55;
             
             this.remove_feve(fevesBQUtilisees, Feve.F_BQ);
             

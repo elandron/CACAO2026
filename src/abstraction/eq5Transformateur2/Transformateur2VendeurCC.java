@@ -189,7 +189,7 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
         
         ChocolatDeMarque[] mesChocolats = {chocoHQ, chocoMQ, chocoBQ};
 
-        double PLAFOND_CC = 40000.0; 
+        double PLAFOND_CC = 10000.0; 
 
         for (ChocolatDeMarque choco : mesChocolats) {
             double quantiteDejaPromise = 0.0;
@@ -201,7 +201,7 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
 
             double espaceLibre = PLAFOND_CC - quantiteDejaPromise;
 
-            if (espaceLibre > 10000.0) {
+            if (espaceLibre > 15000.0) {
                 List<IAcheteurContratCadre> acheteurs = supCC.getAcheteurs(choco);
 
                 if (!acheteurs.isEmpty()) {
