@@ -17,7 +17,7 @@ import abstraction.eqXRomu.produits.IProduit;
 public class Approvisionnement extends ChocolatDistributeur1 {
 
     protected Map<ChocolatDeMarque, Double> prixDAchat;
-    private Map<ChocolatDeMarque, Double> stockPredit;
+    protected Map<ChocolatDeMarque, Double> stockPredit;
     private Map<String, List<ChocolatDeMarque>> classements;
     protected List<ExemplaireContratCadre> mesContrats;
     protected double pourcentBQ, pourcentBQ_E, pourcentMQ, pourcentMQ_E, pourcentHQ, pourcentHQ_E;
@@ -38,12 +38,12 @@ public class Approvisionnement extends ChocolatDistributeur1 {
         this.stockPredit = new HashMap<>();
 
         // Initialisation des pourcentages de répartition (Total = 1.0)
-        this.pourcentBQ = 0.15;   // 15% Bas de gamme standard
-        this.pourcentBQ_E = 0.05; // 5%  Bas de gamme équitable
-        this.pourcentMQ = 0.35;   // 35% Milieu de gamme standard
-        this.pourcentMQ_E = 0.15; // 15% Milieu de gamme équitable
+        this.pourcentBQ = 0.30;   // 30% Bas de gamme standard
+        this.pourcentBQ_E = 0.1166; // 11.66%  Bas de gamme équitable
+        this.pourcentMQ = 0.2166;   // 21.66% Milieu de gamme standard
+        this.pourcentMQ_E = 0.0633; // 6.33% Milieu de gamme équitable
         this.pourcentHQ = 0.20;   // 20% Haut de gamme standard
-        this.pourcentHQ_E = 0.10; // 10% Haut de gamme équitable
+        this.pourcentHQ_E = 0.1033; // 10.33% Haut de gamme équitable
     }
 
     /**
@@ -112,7 +112,6 @@ public class Approvisionnement extends ChocolatDistributeur1 {
     }
 
     public void lancerApprovisionnementGeneral(double volumeCibleTotal) {
-        this.stockPredit = initialiserStockPredit();
 
         // Calcul des cibles pour les 6 catégories
         acheterParCategorie(Gamme.BQ, false, volumeCibleTotal * this.pourcentBQ);
@@ -198,12 +197,12 @@ public class Approvisionnement extends ChocolatDistributeur1 {
      * Correction : Création d'une nouvelle Map pour le stock prédit afin d'éviter
      * de modifier le stock réel pendant les simulations de calcul.
      */
-    private Map<ChocolatDeMarque, Double> initialiserStockPredit() {
+    protected Map<ChocolatDeMarque, Double> initialiserStockPredit() {
         Map<ChocolatDeMarque, Double> predit = new HashMap<>();
         this.ChocolatsAchetes = new HashMap<>(); 
         this.stockPreditTG = new HashMap<>(); // Initialisation du dictionnaire TG
         
-        int etapeActuelle = Filiere.LA_FILIERE.getEtape();
+        int etapeActuelle = Filiere.LA_FILIERE.getEtape() + 1;
 
         // 1. Initialisation à 0 pour tous les chocolats de la filière
         for (ChocolatDeMarque cdm : Filiere.LA_FILIERE.getChocolatsProduits()) {
