@@ -103,20 +103,25 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
         SuperviseurVentesContratCadre sup = null;
         sup = (SuperviseurVentesContratCadre)(Filiere.LA_FILIERE.getActeur("Sup.CCadre"));
         List<IAcheteurContratCadre> acheteurs = sup.getAcheteurs(LamborghiniduCacao);
-        if (this.getStockProduit(LamborghiniduCacao) > 200 && !acheteurs.isEmpty()) {
+        double stockDispoLambor = this.getStockProduit(LamborghiniduCacao) - restantALivrer(LamborghiniduCacao);
+        
+        if (stockDispoLambor > 200 && !acheteurs.isEmpty()) {
             IAcheteurContratCadre acheteur = acheteurs.get(0);
             if (acheteur instanceof IDistributeurChocolatDeMarque) {
-                Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 2, this.getStockProduit(LamborghiniduCacao) / 2);
-                this.journalCCVente.ajouter("Envoi d'une demande vendeur pour " + LamborghiniduCacao + " \u00e0 " + acheteur.getNom());
+                // On propose la moitié du stock REELLEMENT disponible (non engagé)
+                Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 2, stockDispoLambor / 2);
+                this.journalCCVente.ajouter("Envoi d'une demande vendeur pour " + LamborghiniduCacao + " à " + acheteur.getNom());
                 sup.demandeVendeur(acheteur, this, LamborghiniduCacao, e, cryptogramme, false);
             }
         }
-
-        if (this.getStockProduit(Chocoenbien) > 200 && !acheteurs.isEmpty()) {
+        
+        double stockDispoChocoenbien = this.getStockProduit(Chocoenbien) - restantALivrer(Chocoenbien);
+        
+        if (stockDispoChocoenbien > 200 && !acheteurs.isEmpty()) {
             IAcheteurContratCadre acheteur = acheteurs.get(0);
             if (acheteur instanceof IDistributeurChocolatDeMarque) {
-                Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 2, this.getStockProduit(Chocoenbien) / 2);
-                this.journalCCVente.ajouter("Envoi d'une demande vendeur pour " + Chocoenbien + " \u00e0 " + acheteur.getNom());
+                Echeancier e = new Echeancier(Filiere.LA_FILIERE.getEtape()+1, 2, stockDispoChocoenbien / 2);
+                this.journalCCVente.ajouter("Envoi d'une demande vendeur pour " + Chocoenbien + " à " + acheteur.getNom());
                 sup.demandeVendeur(acheteur, this, Chocoenbien, e, cryptogramme, false);
             }
         }
@@ -141,6 +146,16 @@ public class Transformateur3VendeurCCadre extends Transformateur3AcheteurCCadre 
     public List<Journal> getJournaux() {
         List<Journal> res = new ArrayList<Journal>(super.getJournaux());
         res.add(this.journalCCVente);
+        return res;
+    }
+
+    public double restantALivrer(IProduit p) {
+        double res = 0;
+        for (ExemplaireContratCadre c : this.contratsVendus) {
+            if (c.getProduit().equals(p)) {
+                res += c.getQuantiteRestantALivrer();
+            }
+        }
         return res;
     }
 
