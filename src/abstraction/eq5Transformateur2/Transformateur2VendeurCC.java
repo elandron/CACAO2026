@@ -7,6 +7,7 @@ import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.produits.IProduit;
 import abstraction.eqXRomu.produits.Chocolat;
 import abstraction.eqXRomu.produits.ChocolatDeMarque;
+import abstraction.eqXRomu.produits.Feve;
 
 
 /**
@@ -41,22 +42,34 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
         Echeancier echeancier = contrat.getEcheancier();
         
         // NOTRE PLAFOND D'ENGAGEMENT (Doit être le même que dans next)
-        double PLAFOND_CC = 10000.0; 
-        
-        double quantiteDejaPromise = 0.0;
-        for (ExemplaireContratCadre c : this.mesContratsEnCours) {
-            if (c.getVendeur().equals(this) && c.getProduit().equals(choco)) {
-                quantiteDejaPromise += c.getQuantiteRestantALivrer();
-            }
-        }
+        //double PLAFOND_CC = 50000.0; 
         
         // Ce qu'on est encore autorisé à signer
-        double espaceLibre = PLAFOND_CC - quantiteDejaPromise;
+        // --- LE VERROU DE SÉCURITÉ RÉEL ---
+            // 1. Chocolat physique déjà en stock
+            double chocoDispo = this.getStock_chocolatDeMarque(choco);
+            
+            // 2. Chocolat qu'on est SÛR de pouvoir fabriquer avec les fèves physiquement possédées
+            double prodPossible = 0.0;
+            if (choco.getChocolat() == Chocolat.C_HQ) {
+                prodPossible = Math.min(this.getStock_feve(Feve.F_HQ)/0.49, this.getStock_feve(Feve.F_MQ)/0.51);
+            } else if (choco.getChocolat() == Chocolat.C_MQ) {
+                prodPossible = Math.min(this.getStock_feve(Feve.F_MQ)/0.26, this.getStock_feve(Feve.F_BQ)/0.74);
+            } else if (choco.getChocolat() == Chocolat.C_BQ) {
+                prodPossible = this.getStock_feve(Feve.F_BQ)/0.45;
+            }
 
-        // Si le carnet de commandes est plein, on refuse
-        if (espaceLibre <= 0.0) {
-            return null;
-        }
+            // 3. Ce qu'on doit déjà livrer à d'autres clients
+            double quantiteDejaPromise = 0.0;
+            for (ExemplaireContratCadre c : this.mesContratsEnCours) {
+                if (c.getVendeur().equals(this) && c.getProduit().equals(choco)) {
+                    quantiteDejaPromise += c.getQuantiteRestantALivrer();
+                }
+            }
+
+            // 4. Le vrai espace libre 
+            double espaceLibre = Math.max(0.0, (chocoDispo + prodPossible) - quantiteDejaPromise);
+            // ----------------------------------
 
         double quantiteDemandee = contrat.getQuantiteTotale();
         boolean modification = false;
@@ -159,23 +172,26 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
         }
     }
 
-	public double livrer(IProduit produit, double quantite, ExemplaireContratCadre contrat){
-		if (produit instanceof ChocolatDeMarque){ 
-        ChocolatDeMarque cdm = (ChocolatDeMarque) produit;
-        double stockDispo = this.getStock_chocolatDeMarque(cdm);
-
-        if (stockDispo >= quantite){
-            this.remove_chocolatDeMarque(cdm, quantite); // <--- LIGNE CRITIQUE
-            this.getJournaux().get(4).ajouter("Livraison Totale: " +contrat.getNumero() + " - " + contrat.getAcheteur().getNom() + " - " + String.valueOf(quantite)+"\n");
-            return quantite;
-        } else {
-            this.remove_chocolatDeMarque(cdm, stockDispo); // <--- LIGNE CRITIQUE
-            this.getJournaux().get(4).ajouter("Livraison partielle: " + contrat.getNumero() + " - " + contrat.getAcheteur().getNom() + " - " + String.valueOf(stockDispo) + "\n");
-            return stockDispo; 
+	public double livrer(IProduit produit, double quantite, ExemplaireContratCadre contrat) {
+        double quantiteALivrer = 0.0;
+        
+        if (produit instanceof ChocolatDeMarque) {
+            ChocolatDeMarque choco = (ChocolatDeMarque) produit;
+            double stockActuel = this.getStock_chocolatDeMarque(choco);
+            
+            // DYNAMIQUE : On livre ce que le contrat demande (quantite), 
+            // mais bridé par ce qu'on a vraiment en stock pour ne pas passer en négatif
+            quantiteALivrer = Math.min(quantite, stockActuel);
+            
+            // On retire UNIQUEMENT ce qu'on met dans le camion
+            if (quantiteALivrer > 0) {
+                this.remove_chocolatDeMarque(choco, quantiteALivrer); 
+            }
         }
+        
+        // On renvoie la vraie quantité livrée au superviseur
+        return quantiteALivrer;
     }
-    return 0.0;
-	}
 
     @Override
     public void next() {
@@ -189,9 +205,25 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
         
         ChocolatDeMarque[] mesChocolats = {chocoHQ, chocoMQ, chocoBQ};
 
-        double PLAFOND_CC = 10000.0; 
+        //double PLAFOND_CC = 50000.0; 
 
         for (ChocolatDeMarque choco : mesChocolats) {
+            // Ce qu'on est encore autorisé à signer
+        // --- LE VERROU DE SÉCURITÉ RÉEL ---
+            // 1. Chocolat physique déjà en stock
+            double chocoDispo = this.getStock_chocolatDeMarque(choco);
+            
+            // 2. Chocolat qu'on est SÛR de pouvoir fabriquer avec les fèves physiquement possédées
+            double prodPossible = 0.0;
+            if (choco.getChocolat() == Chocolat.C_HQ) {
+                prodPossible = Math.min(this.getStock_feve(Feve.F_HQ)/0.49, this.getStock_feve(Feve.F_MQ)/0.51);
+            } else if (choco.getChocolat() == Chocolat.C_MQ) {
+                prodPossible = Math.min(this.getStock_feve(Feve.F_MQ)/0.26, this.getStock_feve(Feve.F_BQ)/0.74);
+            } else if (choco.getChocolat() == Chocolat.C_BQ) {
+                prodPossible = this.getStock_feve(Feve.F_BQ)/0.45;
+            }
+
+            // 3. Ce qu'on doit déjà livrer à d'autres clients
             double quantiteDejaPromise = 0.0;
             for (ExemplaireContratCadre c : this.mesContratsEnCours) {
                 if (c.getVendeur().equals(this) && c.getProduit().equals(choco)) {
@@ -199,7 +231,9 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
                 }
             }
 
-            double espaceLibre = PLAFOND_CC - quantiteDejaPromise;
+            // 4. Le vrai espace libre 
+            double espaceLibre = Math.max(0.0, (chocoDispo + prodPossible) - quantiteDejaPromise);
+            // ----------------------------------
 
             if (espaceLibre > 15000.0) {
                 List<IAcheteurContratCadre> acheteurs = supCC.getAcheteurs(choco);

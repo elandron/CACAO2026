@@ -24,8 +24,8 @@ public class Transformateur2VendeurAuxEncheres extends Transformateur2AchatEnche
             
             // CORRECTIF 1 : On ne met aux enchères QUE si on a un gros surplus (ex: plus de 150 000T)
             // Et on ne met en vente qu'un petit lot (ex: 5000 T), JAMAIS tout le stock !
-            if (quantiteEnStock > 50000.0 && Filiere.LA_FILIERE.getEtape() % 5 == 0) {
-                superviseur.vendreAuxEncheres(this, cryptogramme, choco, 5000.0);
+            if (quantiteEnStock > 350000.0) {
+                superviseur.vendreAuxEncheres(this, cryptogramme, choco, 10000.0);
             }
         }
     }
