@@ -44,6 +44,15 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
         int etape = Filiere.LA_FILIERE.getEtape();
         this.journalCC.ajouter("=== ETAPE " + etape + " ===");
 
+        List<ExemplaireContratCadre> aRetirer = new java.util.ArrayList<>();
+        for (ExemplaireContratCadre contrat : this.contratsEnCours) {
+            if (contrat.getQuantiteRestantALivrer() == 0.0) {
+                aRetirer.add(contrat);
+                this.contratsTermines.add(contrat);
+            }
+        }
+        this.contratsEnCours.removeAll(aRetirer);
+
         List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
 
         if (produits != null && !produits.isEmpty()) {
@@ -309,17 +318,14 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
 
     @Override
     public void receptionner(IProduit produit, double quantiteEnTonnes, ExemplaireContratCadre contrat) {
-
-        double quantiteEnKg = quantiteEnTonnes;
-
         // Ajouter au stock
         double stockActuel = this.stock.getOrDefault(produit, 0.0);
-        this.stock.put(produit, stockActuel + quantiteEnKg);
+        this.stock.put(produit, stockActuel + quantiteEnTonnes);
 
         // Mettre à jour l'indicateur de stock total
         this.indicateurStockTotal.setValeur(this, getStockTotal());
 
-        this.journalStocks.ajouter("Livraison reçue : " + (quantiteEnKg) + "t de " +
+        this.journalStocks.ajouter("Livraison reçue : " + quantiteEnTonnes + "t de " +
                            produit + " (contrat cadre)");
     }
 

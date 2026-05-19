@@ -18,11 +18,7 @@ public class Distributeur2AcheteurAO extends Distributeur2Acteur implements IAch
     protected java.util.Map<ChocolatDeMarque, java.util.List<Double>> historiqueVentes = new java.util.HashMap<>();
     protected double coutStockageParTonne = 500.0; // €/t/étape
     protected double coutPenurieParTonne = 2000.0; // €/t pour rupture
-    protected java.util.Map<abstraction.eqXRomu.produits.Gamme, Integer> dureeVieProduits = java.util.Map.of(
-        abstraction.eqXRomu.produits.Gamme.HQ, 12,
-        abstraction.eqXRomu.produits.Gamme.MQ, 8,
-        abstraction.eqXRomu.produits.Gamme.BQ, 6
-    ); // Étapes avant péremption
+
 public Distributeur2AcheteurAO(){
     super();
 }
@@ -106,16 +102,18 @@ public Distributeur2AcheteurAO(){
         double prixPropose = offre.getPrixT();
         ChocolatDeMarque choco = (ChocolatDeMarque) offre.getProduit();
 
-        double margeMin = 1.2; // 20% de marge minimale
-        double prixMaxAcceptable = prix(choco) / margeMin;
+        double stockActuel = this.stock.getOrDefault(choco, 0.0);
+        double prixMaxAcceptable;
+        if (stockActuel < 10.0) {
+            prixMaxAcceptable = prix(choco); // Accepter de descendre à 0% de marge si stock critique, mais jamais de vente à perte
+        } else {
+            prixMaxAcceptable = prix(choco) * 0.95; // Exiger au moins 5% de marge en temps normal
+        }
 
-        // Rejeter si trop cher pour notre marge minimale
-        if (prixPropose >= prixMaxAcceptable) continue;
-
-        // Rejeter si vente à perte
-        if (prixPropose >= prix(choco)) {
-            this.journalAO.ajouter("Offre rejetée (vente à perte) : "
-                + choco.getNom() + " à " + prixPropose + "€/T");
+        // Rejeter si trop cher
+        if (prixPropose > prixMaxAcceptable) {
+            this.journalAO.ajouter("Offre rejetée (trop chère) : "
+                + choco.getNom() + " à " + prixPropose + "€/T (max=" + prixMaxAcceptable + ")");
             continue;
         }
 
