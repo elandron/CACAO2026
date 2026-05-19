@@ -256,9 +256,17 @@ public class Approvisionnement extends ChocolatDistributeur1 {
     }
 
     public double getQuantiteTotaleTG() {
+        // Sécurité : si le dictionnaire n'est même pas encore instancié
+        if (this.stockPreditTG == null) {
+            return 0.0;
+        }
+        
         double total = 0;
         for (Double qte : this.stockPreditTG.values()) {
-            total += qte;
+            // Sécurité : on vérifie que la valeur stockée n'est pas nulle
+            if (qte != null) {
+                total += qte;
+            }
         }
         return total;
     }
