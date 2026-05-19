@@ -22,10 +22,8 @@ public class Transformateur2VendeurAuxEncheres extends Transformateur2AchatEnche
         for (ChocolatDeMarque choco : mesChocolats) {
             Double quantiteEnStock = this.getStock_chocolatDeMarque(choco);
             
-            // CORRECTIF 1 : On ne met aux enchères QUE si on a un gros surplus (ex: plus de 150 000T)
-            // Et on ne met en vente qu'un petit lot (ex: 5000 T), JAMAIS tout le stock !
-            if (quantiteEnStock > 350000.0) {
-                superviseur.vendreAuxEncheres(this, cryptogramme, choco, 10000.0);
+            if (quantiteEnStock > 100000.0) {
+                superviseur.vendreAuxEncheres(this, cryptogramme, choco, 25000.0);
             }
         }
     }
@@ -44,10 +42,10 @@ public class Transformateur2VendeurAuxEncheres extends Transformateur2AchatEnche
         ChocolatDeMarque choco = (ChocolatDeMarque)choisie.getProduit();
         double prixMinimum = 0.0;
         switch (choco.getChocolat()) {
-            case C_HQ: prixMinimum = 7000.0; break; // On accepte de brader un peu (7000 au lieu de 8000)
-            case C_MQ: prixMinimum = 4500.0; break;
-            case C_BQ: prixMinimum = 2500.0; break;
-            default:   prixMinimum = 2000.0; break;
+            case C_HQ: prixMinimum = 15000.0; break; // On accepte de brader un peu (7000 au lieu de 8000)
+            case C_MQ: prixMinimum = 10000.0; break;
+            case C_BQ: prixMinimum = 7000.0; break;
+            default:   prixMinimum = 5000.0; break;
         }
 
         // Si la "meilleure" offre est en dessous de notre prix de fabrication, on refuse la vente !
