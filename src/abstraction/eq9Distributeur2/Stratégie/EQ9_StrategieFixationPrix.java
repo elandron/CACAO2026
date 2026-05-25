@@ -1,4 +1,4 @@
-package abstraction.eq9Distributeur2;
+package abstraction.eq9Distributeur2.Stratégie;
 
 import abstraction.eqXRomu.general.Journal;
 

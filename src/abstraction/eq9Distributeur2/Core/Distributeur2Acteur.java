@@ -1,4 +1,4 @@
-package abstraction.eq9Distributeur2;
+package abstraction.eq9Distributeur2.Core;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import abstraction.eqXRomu.filiere.IMarqueChocolat;
+import abstraction.eq9Distributeur2.Config.EQ9Config;
+import abstraction.eq9Distributeur2.Stratégie.EQ9_StrategieConcurrentielle;
+import abstraction.eq9Distributeur2.Stratégie.EQ9_StrategieFixationPrix;
 import abstraction.eqXRomu.clients.ClientFinal;
 import abstraction.eqXRomu.filiere.Filiere;
 import abstraction.eqXRomu.filiere.IActeur;
@@ -34,6 +37,14 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
     protected Variable indicateurMixMarquePrivee;
     protected Variable indicateurProfitBrutEtape;
 
+    protected Variable indicateurPartMarche;
+    protected Variable indicateurDOS;
+    protected Variable indicateurTauxRupture;
+    protected Variable indicateurCashBuffer;
+    protected EQ9_StrategieConcurrentielle strategieConcurrentielle;
+
+
+
     /**
      * @author Paul Juhel
      */
@@ -48,6 +59,12 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
         this.indicateurMargeMoyenne = new Variable("EQ9_marge_moyenne", this, 18.0);
         this.indicateurMixMarquePrivee = new Variable("EQ9_pct_marque_privee", this, 40.0);
         this.indicateurProfitBrutEtape = new Variable("EQ9_profit_brut", this, 0.0);
+        this.indicateurPartMarche = new Variable("EQ9_part_marche", this, 0.0);
+        this.indicateurDOS = new Variable("EQ9_days_of_stock", this, 0.0);
+        this.indicateurTauxRupture = new Variable("EQ9_taux_rupture", this, 0.0);
+        this.indicateurCashBuffer = new Variable("EQ9_cash_buffer", this, 0.0);
+        this.strategieConcurrentielle = new EQ9_StrategieConcurrentielle();
+
     }
 
     // Ajoute 100 tonnes d'un produit en rayon
@@ -100,6 +117,7 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
     public void next() {
         int etape = Filiere.LA_FILIERE.getEtape();
         this.journal.ajouter("=== ETAPE " + etape + " ===");
+        this.mettreAJourKPIs();
         // Cette méthode est surchargée par Distributeur2AcheteurCC
         // Elle ne doit pas être appelée directement
     }
@@ -131,6 +149,10 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
         res.add(indicateurMargeMoyenne);
         res.add(indicateurMixMarquePrivee);
         res.add(indicateurProfitBrutEtape);
+        res.add(indicateurPartMarche);
+        res.add(indicateurDOS);
+        res.add(indicateurTauxRupture);
+        res.add(indicateurCashBuffer);
         return res;
     }
 
@@ -287,47 +309,37 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
     /**
      * Calcule le prix de maniere dynamique selon la qualité du chocolat
      * 
-     * @author Anass Ouisrani
+     * @author Paul JUHEL
      */
 
     protected void ajusterPrixDynamiques() {
         int etape = Filiere.LA_FILIERE.getEtape();
-        if (etape < 1)
-            return; // Pas de référence à l'étape 0
+        if (etape < 1) return;
 
         List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
-        if (produits == null || produits.isEmpty())
-            return;
+        if (produits == null || produits.isEmpty()) return;
 
         double profitBrutTotal = 0;
         double margeTotal = 0;
 
         for (ChocolatDeMarque choco : produits) {
-            // Coût d'achat = prix moyen du marché à l'étape précédente
             double coutAchat = obtenirCoutAchat(choco);
-
             double stock = this.stock.getOrDefault(choco, 0.0);
-
             double demande = estimerDemandeClients(choco);
-
             double prixConcurrent = estimerPrixConcurrent(choco);
 
-            // Calcul prix optimal via la stratégie
-            double prixOptimal = strategieFixationPrix.calculerPrixVente(
-                    coutAchat,
-                    choco.getNom(),
-                    stock,
-                    demande,
-                    prixConcurrent);
+            double prixBase = strategieFixationPrix.calculerPrixVente(
+                coutAchat, choco.getNom(), stock * 1000.0, demande, prixConcurrent);
 
-            this.prix.put(choco, prixOptimal);
+            double prixFinal = strategieConcurrentielle.ajusterSelonConcurrence(prixBase, prixConcurrent);
+
+            this.prix.put(choco, prixFinal);
             this.journal.ajouter("Prix ajusté " + choco.getNom()
-                    + " : " + prixOptimal + "€/T"
-                    + " (coût=" + coutAchat + ", demande=" + (demande / 1000) + "t)");
+                + " : " + prixFinal + "€/T (coût=" + coutAchat + ", marché=" + prixConcurrent + ")");
 
-            if (stock > 0) {
-                profitBrutTotal += (prixOptimal - coutAchat) * (stock / 1000.0);
-                margeTotal += ((prixOptimal - coutAchat) / coutAchat) * 100;
+            if (stock > 0 && coutAchat > 0) {
+                profitBrutTotal += (prixFinal - coutAchat) * (stock / 1000.0);
+                margeTotal += ((prixFinal - coutAchat) / coutAchat) * 100;
             }
         }
 
@@ -335,8 +347,10 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
         this.indicateurMargeMoyenne.setValeur(this, margeTotal / produits.size());
     }
 
+
     /**
      * Obtient le coût d'achat pour un produit (estimation)
+     * @author Anass Ouisrani
      */
     private double obtenirCoutAchat(ChocolatDeMarque choco) {
         int etape = Filiere.LA_FILIERE.getEtape();
@@ -392,4 +406,53 @@ public class Distributeur2Acteur implements IActeur, IDistributeurChocolatDeMarq
         marques.add(NOM_MARQUE);
         return marques;
     }
+
+    /**
+     * @author Paul JUHEL
+     */
+
+    protected double getCash() {
+    return Filiere.LA_FILIERE.getBanque().getSolde(this, this.cryptogramme);
+    }
+
+    protected double estimerVentesTotalesDerniereEtape() {
+        double ventes = 0.0;
+        int etape = Filiere.LA_FILIERE.getEtape();
+        if (etape < 1) return 0.0;
+        for (ChocolatDeMarque ch : Filiere.LA_FILIERE.getChocolatsProduits()) {
+            ventes += Filiere.LA_FILIERE.getVentes(ch, etape - 1);
+        }
+        return ventes;
+    }
+
+    protected void mettreAJourKPIs() {
+        int etape = Filiere.LA_FILIERE.getEtape();
+        if (etape < 1) return;
+
+        // Part de marché (ventes EQ9 / ventes totales)
+        double ventesTotales = 0.0;
+        double ventesEQ9 = 0.0;
+        for (ChocolatDeMarque ch : Filiere.LA_FILIERE.getChocolatsProduits()) {
+            double v = Filiere.LA_FILIERE.getVentes(ch, etape - 1);
+            ventesTotales += v;
+            if (ch.getMarque().equals(NOM_MARQUE)) {
+                ventesEQ9 += v;
+            }
+        }
+        double partMarche = (ventesTotales > 0) ? (ventesEQ9 / ventesTotales * 100.0) : 0.0;
+        this.indicateurPartMarche.setValeur(this, partMarche);
+
+        // Days of Stock (DOS): stock total / ventes moyennes
+        double stockKg = getStockTotal() * 1000.0;
+        double ventesJourKg = ventesTotales / 365.0;
+        double dos = (ventesJourKg > 0) ? stockKg / ventesJourKg : 999.0;
+        this.indicateurDOS.setValeur(this, dos);
+
+        // Cash buffer
+        this.indicateurCashBuffer.setValeur(this, getCash());
+
+        // Taux de rupture
+        this.indicateurTauxRupture.setValeur(this, 0.0);
+    }
+
 }

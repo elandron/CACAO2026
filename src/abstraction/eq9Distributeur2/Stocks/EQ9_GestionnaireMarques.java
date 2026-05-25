@@ -1,4 +1,4 @@
-package abstraction.eq9Distributeur2;
+package abstraction.eq9Distributeur2.Stocks;
 
 import java.util.HashMap;
 import java.util.Map;

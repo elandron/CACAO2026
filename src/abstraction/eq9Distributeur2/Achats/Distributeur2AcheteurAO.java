@@ -1,5 +1,7 @@
-package abstraction.eq9Distributeur2;
+package abstraction.eq9Distributeur2.Achats;
 
+import abstraction.eq9Distributeur2.Config.EQ9Config;
+import abstraction.eq9Distributeur2.Core.Distributeur2Acteur;
 import abstraction.eqXRomu.appelDOffre.AppelDOffre;
 import abstraction.eqXRomu.appelDOffre.IAcheteurAO;
 import abstraction.eqXRomu.appelDOffre.OffreVente;
@@ -33,43 +35,60 @@ public Distributeur2AcheteurAO(){
     }
     public void faireUnAppelDOffre() {
         SuperviseurVentesAO superviseurAO = (SuperviseurVentesAO) Filiere.LA_FILIERE.getActeur("Sup.AO");
-        List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
+        if (superviseurAO == null) {
+            this.journalAO.ajouter("Sup.AO introuvable : aucun AO cette étape");
+            return;
+        }
 
+        List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
         if (produits == null || produits.isEmpty()) {
+            return;
+        }
+
+        double solde = getSolde();
+        if (solde < EQ9Config.CASH_BUFFER_MIN) {
+            this.journalAO.ajouter("Cash < buffer minimal (" + solde + "€) : pas d'AO cette étape");
             return;
         }
 
         for (ChocolatDeMarque choco : produits) {
             double stockActuel = this.stock.getOrDefault(choco, 0.0);
-            double stockProjete = stockActuel ;
-            double seuilMin = EQ9Config.SEUIL_MIN_T;    
-            double stockCible = EQ9Config.STOCK_CIBLE_T;  
+            double enCoursCC = restantDu(choco); // livraisons CC à venir
+            double stockProjete = stockActuel + enCoursCC;
 
-            // Calculer la quantité à acheter en tenant compte des livraisons CC déjà prévues
+            double seuilMin = EQ9Config.SEUIL_MIN_T;
+            double stockCible = EQ9Config.STOCK_CIBLE_T;
+
             double quantiteAO = 0.0;
+
             if (stockProjete < seuilMin) {
                 quantiteAO = stockCible - stockProjete;
-                this.journalAO.ajouter("Stock critique pour " + choco.getNom() 
-                    + " (" + (stockActuel) + "t actuel, " + (stockProjete) + "t projeté) → réappro obligatoire");
+                this.journalAO.ajouter("Stock CRITIQUE " + choco.getNom()
+                    + " (" + stockActuel + "t actuel, " + stockProjete + "t projeté, en cours CC=" + enCoursCC + "t)"
+                    + ": réappro massif (objectif " + stockCible + "t)");
             } else if (stockProjete < stockCible) {
-                quantiteAO = (stockCible - stockProjete) * 0.5;
-                this.journalAO.ajouter("Stock bas pour " + choco.getNom() 
-                    + " (" + (stockActuel) + "t actuel, " + (stockProjete) + "t projeté) → réappro partiel");
+                // Stock bas → réappro agressif (plus que 50%)
+                quantiteAO = (stockCible - stockProjete) * 0.7;
+                this.journalAO.ajouter("Stock bas " + choco.getNom()
+                    + " (" + stockActuel + "t actuel, " + stockProjete + "t projeté)"
+                    + ": réappro partiel");
             } else {
+                // Stock suffisant : pas d'AO
                 continue;
             }
 
             // Respecter la quantité minimum des AO
-            if (quantiteAO < Math.max(AppelDOffre.AO_QUANTITE_MIN, EQ9Config.MIN_ACHAT_AO_T)) {
-                quantiteAO = AppelDOffre.AO_QUANTITE_MIN;
+            double qMinAO = Math.max(AppelDOffre.AO_QUANTITE_MIN, EQ9Config.MIN_ACHAT_AO_T);
+            if (quantiteAO < qMinAO) {
+                quantiteAO = qMinAO;
             }
 
             // Vérifier qu'on a les fonds suffisants
             double prixEstime = prix(choco);
-            double coutEstime = (quantiteAO) * prixEstime * 0.75;
-            if (getSolde() < coutEstime) {
-                this.journalAO.ajouter("Fonds insuffisants pour " + choco.getNom() 
-                    + " : solde=" + getSolde() + "€, besoin=" + coutEstime + "€");
+            double coutEstime = quantiteAO * prixEstime;
+            if (solde < coutEstime) {
+                this.journalAO.ajouter("Fonds insuffisants pour " + choco.getNom()
+                    + " : solde=" + solde + "€, besoin≈" + coutEstime + "€ pour " + quantiteAO + "t");
                 continue;
             }
 
@@ -79,18 +98,20 @@ public Distributeur2AcheteurAO(){
             if (offreRetenue != null) {
                 double prixAchat = offreRetenue.getPrixT();
                 double quantiteAchetee = offreRetenue.getQuantiteT();
-                double stockActuelApreAchat = this.stock.getOrDefault(choco, 0.0);
-                this.stock.put(choco, stockActuelApreAchat + quantiteAchetee);
+                double stockActuelApresAchat = this.stock.getOrDefault(choco, 0.0);
+                this.stock.put(choco, stockActuelApresAchat + quantiteAchetee);
                 this.indicateurStockTotal.setValeur(this, getStockTotal());
 
-                this.journalAO.ajouter("Achat réussi : " + (quantiteAchetee) + "t de "
+                this.journalAO.ajouter("Achat AO : " + quantiteAchetee + "t de "
                     + choco.getNom() + " à " + prixAchat + "€/T chez "
-                    + offreRetenue.getVendeur().getNom());
+                    + offreRetenue.getVendeur().getNom()
+                    + " (stock total=" + this.stock.get(choco) + "t)");
             } else {
-                this.journalAO.ajouter("Aucune offre pour " + choco.getNom());
+                this.journalAO.ajouter("Aucune offre acceptable pour " + choco.getNom());
             }
         }
     }
+
 
 
     @Override
