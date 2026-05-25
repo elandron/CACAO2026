@@ -34,7 +34,7 @@ public class Producteur3VendeurAuxEncheres extends Producteur3VendeurCC implemen
 		/*int stepActuel = Filiere.LA_FILIERE.getEtape();
 		this.journalEncheres.ajouter("=== STEP "+stepActuel+" ====================");
 		for (Feve f : this.stock.getStockMap().keySet()) {
-			if (f.isEquitable()) continue; // Sécurité EQ4
+			if (f.isEquitable()) continue; // à modifier si les autres équipes peuvent acheter de l'équitable
 
 			double stockActuel = this.stock.getStock(f);
 			
@@ -61,12 +61,16 @@ public class Producteur3VendeurAuxEncheres extends Producteur3VendeurCC implemen
 			if (quantiteMaxVendable > 5000.0) {
 				double quantiteAVendre = 5000.0; // On vend par blocs fixes sûrs
 				
-				// Ajustement dynamique du prix minimal (vu à l'étape précédente)
-				double coutFeve = this.gestionCouts.getCoutFeve(f, this);
+				double coutParTonne = 0;
 				if (productionEstimeeProchainStep > 0) {
-					this.prixMin = (coutFeve / productionEstimeeProchainStep) * 1.15;
+					double coutGlobalFeve = this.gestionCouts.getCoutFeve(f, this);
+					coutParTonne = coutGlobalFeve / productionEstimeeProchainStep;
+				}
+				
+				if (coutParTonne > 0) {
+					this.prixMin = coutParTonne * 1.15; // Coût de revient + 15% de marge
 				} else {
-					this.prixMin = 2000.0;
+					this.prixMin = 1500.0; // Prix de secours
 				}
 				Enchere enchere = superviseur.vendreAuxEncheres(this, cryptogramme, f, quantiteAVendre);
 				journalEncheres.ajouter("   Je lance une enchere de "+quantiteAVendre+" T de "+f);
