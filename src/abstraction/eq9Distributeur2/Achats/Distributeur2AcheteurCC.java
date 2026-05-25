@@ -1,6 +1,7 @@
 package abstraction.eq9Distributeur2.Achats;
 
 import abstraction.eq9Distributeur2.Config.EQ9Config;
+import abstraction.eq9Distributeur2.Stocks.EQ9_GestionStocks;
 import abstraction.eq9Distributeur2.Stratégie.EQ9_StrategieFixationPrix;
 import abstraction.eqXRomu.contratsCadres.Echeancier;
 import abstraction.eqXRomu.contratsCadres.ExemplaireContratCadre;
@@ -369,61 +370,71 @@ public class Distributeur2AcheteurCC extends Distributeur2AcheteurAO implements 
      * @author Paul JUHEL
      */
     public void fairePropositionCC() {
-        List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
-        for (ChocolatDeMarque choco : produits) {
+        EQ9_GestionStocks gs = new EQ9_GestionStocks(this.stock, this::restantDu);
+
+        List<ChocolatDeMarque> produitsFiliere = Filiere.LA_FILIERE.getChocolatsProduits();
+        if (produitsFiliere == null || produitsFiliere.isEmpty()) {
+            return;
+        }
+
+        for (ChocolatDeMarque choco : produitsFiliere) {
+            if (!gs.doitAcheter(choco)) continue;
+            if (!gs.prefererCC(choco)) continue; // AO gère le reste
+
+            double quantiteCC = gs.quantiteAacheter(choco);
+            if (quantiteCC < EQ9Config.CC_QUANTITE_MIN_T) continue;
+
             double stockActuel = this.stock.getOrDefault(choco, 0.0);
             double enCours = restantDu(choco);
             double seuilDeSecurite = EQ9Config.SEUIL_MIN_T;
             double stockProjete = stockActuel + enCours;
 
-            if (stockProjete < seuilDeSecurite) {
-                double quantiteCible = EQ9Config.STOCK_CIBLE_T;
-                double quantiteAcheter = quantiteCible - stockProjete;
-                if (quantiteAcheter < EQ9Config.CC_QUANTITE_MIN_T) continue;
+            if (stockProjete >= seuilDeSecurite) {
+                continue;
+            }
 
-                // Vérifier les fonds disponibles
-                double prixEstime = getPrixMaxAcceptable(choco);
-                double coutEstime = (quantiteAcheter / 1.0) * prixEstime;
-                if (getSolde() < coutEstime * 1.2) { // Marge de sécurité
-                    this.journalCC.ajouter("Fonds insuffisants pour CC " + choco.getNom()
-                        + " : besoin " + coutEstime + "€, solde " + getSolde() + "€");
-                    continue;
+            double quantiteAcheter = Math.max(quantiteCC, EQ9Config.CC_QUANTITE_MIN_T);
+
+            // Vérifier les fonds disponibles
+            double prixEstime = getPrixMaxAcceptable(choco);
+            double coutEstime = quantiteAcheter * prixEstime;
+            if (getSolde() < coutEstime * 1.2) { // Marge de sécurité
+                this.journalCC.ajouter("Fonds insuffisants pour CC " + choco.getNom()
+                    + " : besoin " + coutEstime + "€, solde " + getSolde() + "€");
+                continue;
+            }
+
+            List<IVendeurContratCadre> vendeurs = this.superviseurCC.getVendeurs(choco);
+            if (vendeurs.isEmpty()) {
+                this.journalCC.ajouter("Aucun vendeur disponible pour " + choco.getNom());
+                continue;
+            }
+
+            boolean propositionReussie = false;
+            for (IVendeurContratCadre vendeur : vendeurs) {
+                int stepDebut = Filiere.LA_FILIERE.getEtape() + 1;
+                int nbSteps = Math.min(6, 24 - stepDebut);
+                if (nbSteps <= 0) continue;
+
+                double quantiteParStep = quantiteAcheter / nbSteps;
+                Echeancier echeancierPropose = new Echeancier(stepDebut, nbSteps, quantiteParStep);
+
+                ExemplaireContratCadre contrat = this.superviseurCC.demandeAcheteur(
+                    this, vendeur, choco, echeancierPropose, this.cryptogramme, false);
+
+                if (contrat != null) {
+                    this.journalCC.ajouter("Proposition CC initiée pour " + quantiteAcheter
+                        + "t de " + choco.getNom() + " chez " + vendeur.getNom());
+                    propositionReussie = true;
+                    break;
+                } else {
+                    this.journalCC.ajouter("Proposition CC rejetée par " + vendeur.getNom()
+                        + " pour " + choco.getNom());
                 }
+            }
 
-                List<IVendeurContratCadre> vendeurs = this.superviseurCC.getVendeurs(choco);
-                if (vendeurs.isEmpty()) {
-                    this.journalCC.ajouter("Aucun vendeur disponible pour " + choco.getNom());
-                    continue;
-                }
-
-                // Essayer de négocier avec les vendeurs
-                boolean propositionReussie = false;
-                for (IVendeurContratCadre vendeur : vendeurs) {
-                    int stepDebut = Filiere.LA_FILIERE.getEtape() + 1;
-                    int nbSteps = Math.min(6, 24 - stepDebut);
-                    if (nbSteps <= 0) continue;
-
-                    double quantiteParStep = quantiteAcheter / nbSteps;
-                    Echeancier echeancierPropose = new Echeancier(stepDebut, nbSteps, quantiteParStep);
-
-                    // Initier la négociation
-                    ExemplaireContratCadre contrat = this.superviseurCC.demandeAcheteur(
-                        this, vendeur, choco, echeancierPropose, this.cryptogramme, false);
-
-                    if (contrat != null) {
-                        this.journalCC.ajouter("Proposition CC initiée pour " + (quantiteAcheter)
-                            + "t de " + choco.getNom() + " chez " + vendeur.getNom());
-                        propositionReussie = true;
-                        break; // On s'arrête au premier vendeur qui accepte de négocier
-                    } else {
-                        this.journalCC.ajouter("Proposition CC rejetée par " + vendeur.getNom()
-                            + " pour " + choco.getNom());
-                    }
-                }
-
-                if (!propositionReussie) {
-                    this.journalCC.ajouter("Échec de toutes les propositions CC pour " + choco.getNom());
-                }
+            if (!propositionReussie) {
+                this.journalCC.ajouter("Échec de toutes les propositions CC pour " + choco.getNom());
             }
         }
     }

@@ -2,6 +2,7 @@ package abstraction.eq9Distributeur2.Achats;
 
 import abstraction.eq9Distributeur2.Config.EQ9Config;
 import abstraction.eq9Distributeur2.Core.Distributeur2Acteur;
+import abstraction.eq9Distributeur2.Stocks.EQ9_GestionStocks;
 import abstraction.eqXRomu.appelDOffre.AppelDOffre;
 import abstraction.eqXRomu.appelDOffre.IAcheteurAO;
 import abstraction.eqXRomu.appelDOffre.OffreVente;
@@ -34,14 +35,16 @@ public Distributeur2AcheteurAO(){
         return 0.0;
     }
     public void faireUnAppelDOffre() {
+        EQ9_GestionStocks gs = new EQ9_GestionStocks(this.stock, this::restantDu);
+
         SuperviseurVentesAO superviseurAO = (SuperviseurVentesAO) Filiere.LA_FILIERE.getActeur("Sup.AO");
         if (superviseurAO == null) {
             this.journalAO.ajouter("Sup.AO introuvable : aucun AO cette étape");
             return;
         }
 
-        List<ChocolatDeMarque> produits = Filiere.LA_FILIERE.getChocolatsProduits();
-        if (produits == null || produits.isEmpty()) {
+        List<ChocolatDeMarque> produitsFiliere = Filiere.LA_FILIERE.getChocolatsProduits();
+        if (produitsFiliere == null || produitsFiliere.isEmpty()) {
             return;
         }
 
@@ -51,7 +54,10 @@ public Distributeur2AcheteurAO(){
             return;
         }
 
-        for (ChocolatDeMarque choco : produits) {
+        for (ChocolatDeMarque choco : produitsFiliere) {
+            if (!gs.doitAcheter(choco)) continue;
+            if (!gs.prefererAO(choco)) continue; // CC gère le reste
+
             double stockActuel = this.stock.getOrDefault(choco, 0.0);
             double enCoursCC = restantDu(choco); // livraisons CC à venir
             double stockProjete = stockActuel + enCoursCC;
