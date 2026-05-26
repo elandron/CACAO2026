@@ -53,7 +53,7 @@ public class Transformateur4AcheteurCC extends Transformateur4AcheteurBourse imp
         this.journal_CC_achat.ajouter("[PROPOSITION VENDEUR] Proposition de " + contrat.getVendeur() + " pour un prix de "+ contrat.getPrix() + " et une quantitée totale de " + contrat.getQuantiteTotale());
         if (contrat.getPrix()>2*bourse.getCours(Feve.F_BQ).getValeur()){
             this.journal_CC_achat.ajouter("[PROPOSITION ACHETEUR] Proposition d'un prix de "+ contrat.getPrix()/(2*contrat.getQuantiteTotale()) + " la tonne" );
-            return contrat.getPrix()/2;
+            return contrat.getPrix()/1.5;
         }
         if (contrat.getPrix()>bourse.getCours(Feve.F_BQ).getValeur()){
             this.journal_CC_achat.ajouter("[PROPOSITION ACHETEUR] Proposition d'un prix de "+ contrat.getPrix()*0.8/contrat.getQuantiteTotale() + " la tonne" );
