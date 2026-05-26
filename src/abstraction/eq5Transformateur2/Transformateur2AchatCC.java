@@ -132,6 +132,7 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
 	 */
 	public void notificationNouveauContratCadre(ExemplaireContratCadre contrat){
 		this.mesContratsEnCours.add(contrat);
+		System.out.println("contrat #"+contrat.getNumero()+" "+contrat.getVendeur()+" a "+contrat.getAcheteur());
 		if (contrat.getProduit() instanceof Feve){
 			this.mesContratsEnCours.add(contrat);
 			this.getJournaux().get(3).ajouter("Achat fève en CC : " + contrat.toString() + "\n");
@@ -214,7 +215,9 @@ public class Transformateur2AchatCC extends Transformateur2VendeurAuxEncheres im
                         
                         // Si le contrat a été accepté et signé (il n'est pas null)
                         if (nouveauContrat != null) {
-                            break; // SUCCÈS ! On quitte la boucle des vendeurs, inutile de demander aux autres.
+                            if (nouveauContrat != null){
+                        this.notificationNouveauContratCadre(nouveauContrat);
+                    	}; // SUCCÈS ! On quitte la boucle des vendeurs, inutile de demander aux autres.
                         }
                     }
                     // ---------------------------------------------

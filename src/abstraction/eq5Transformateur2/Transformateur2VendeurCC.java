@@ -314,7 +314,10 @@ public class Transformateur2VendeurCC extends Transformateur2AchatCC implements 
                     double quantiteParTour = quantiteAProposer / 5.0;
                     
                     Echeancier echeancier = new Echeancier(Filiere.LA_FILIERE.getEtape() + 1, 5, quantiteParTour);
-                    supCC.demandeVendeur(acheteur, this, choco, echeancier, cryptogramme, false);
+                    ExemplaireContratCadre Contrat = supCC.demandeVendeur(acheteur, this, choco, echeancier, cryptogramme, false);
+                    if (Contrat != null){
+                        this.notificationNouveauContratCadre(Contrat);
+                    }
                 }
             }
             }
