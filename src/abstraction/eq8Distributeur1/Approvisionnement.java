@@ -160,58 +160,76 @@ public class Approvisionnement extends ChocolatDistributeur1 {
     private void parcourirEtAcheter(List<ChocolatDeMarque> liste, double besoinCategorie) {
         if (liste.isEmpty()) return;
 
-        // --- ÉTAPE 1 : TOURNÉE DES CONTRATS CADRES (CC) ---
+        // --- ÉTAPE 1 : PHASE CONTRATS CADRES (CC) EN MULTIPLES PASSAGES ---
         double besoinRestantPourCC = besoinCategorie;
+        
+        // Calcul de la fraction du besoin pour chaque chocolat (ex: besoin global divisé par le nombre de produits)
+        // On s'assure de ne pas diviser par zéro grâce au check isEmpty() au-dessus
+        double fractionBesoin = besoinCategorie / liste.size();
 
-        for (int i = 0; i < liste.size(); i++) {
-            ChocolatDeMarque actuel = liste.get(i);
-            
-            // PROTECTION CONCURRENT : On n'achète pas la marque du distributeur concurrent eq9
-            if (actuel.getMarque() != null && actuel.getMarque().contains("eq9Distributeur2")) {
-                this.journal5.ajouter("CC Refusé - Produit du concurrent boycotté : " + actuel.getMarque());
-                continue; 
-            }
+        // On effectue 4 passages maximum sur la liste pour essayer de diversifier les marques
+        for (int tour = 1; tour <= 4; tour++) {
+            // Si le besoin est déjà couvert à ce tour, on stoppe immédiatement la phase CC
+            if (besoinRestantPourCC <= 0.1) break;
 
-            double prixCible = this.prixDAchat.getOrDefault(actuel, 1000.0);
-            double prixMax = prixCible * 1.3;
+            for (int i = 0; i < liste.size(); i++) {
+                // Sécurité additionnelle au sein de la boucle
+                if (besoinRestantPourCC <= 0.1) break;
 
-            if (i < liste.size() - 1) {
-                prixMax = this.prixDAchat.getOrDefault(liste.get(i + 1), prixMax);
-            }
+                ChocolatDeMarque actuel = liste.get(i);
+                
+                // PROTECTION CONCURRENT : On n'achète pas la marque du distributeur concurrent eq9
+                if (actuel.getMarque() != null && actuel.getMarque().contains("eq9Distributeur2")) {
+                    if (tour == 1) { // Évite de polluer le journal à chaque nouveau passage
+                        this.journal5.ajouter("CC Refusé - Produit du concurrent boycotté : " + actuel.getMarque());
+                    }
+                    continue; 
+                }
 
-            // Logique Tête de Gondole (TG)
-            boolean demandeTG = false;
-            double quantiteAcheterCC = besoinRestantPourCC;
-            
-            if (actuel.isEquitable()) {
-                double capaciteMaxTG = this.TailleRayon * 0.1;
-                double occupationActuelleTG = getQuantiteTotaleTG();
-                double placeRestanteTG = getPlaceRestanteTG();
+                double prixCible = this.prixDAchat.getOrDefault(actuel, 1000.0);
+                double prixMax = prixCible * 1.3;
 
-                if (occupationActuelleTG < (capaciteMaxTG * 0.8)) {
-                    demandeTG = true;
-                    if (besoinRestantPourCC > placeRestanteTG) {
-                        quantiteAcheterCC = Math.max(0, placeRestanteTG);
+                if (i < liste.size() - 1) {
+                    prixMax = this.prixDAchat.getOrDefault(liste.get(i + 1), prixMax);
+                }
+
+                // Quantité à acheter pour ce chocolat lors de ce passage précis
+                // On prend le minimum entre notre fraction cible et la totalité de ce qu'il reste à couvrir
+                double quantiteAcheterCC = Math.min(fractionBesoin, besoinRestantPourCC);
+
+                // Logique Tête de Gondole (TG)
+                boolean demandeTG = false;
+                if (actuel.isEquitable()) {
+                    double capaciteMaxTG = this.TailleRayon * 0.1;
+                    double occupationActuelleTG = getQuantiteTotaleTG();
+                    double placeRestanteTG = getPlaceRestanteTG();
+
+                    if (occupationActuelleTG < (capaciteMaxTG * 0.8)) {
+                        demandeTG = true;
+                        if (quantiteAcheterCC > placeRestanteTG) {
+                            quantiteAcheterCC = Math.max(0, placeRestanteTG);
+                        }
                     }
                 }
-            }
 
-            // On ne tente le Contrat Cadre que s'il y a un volume pertinent
-            if (quantiteAcheterCC > 0.1) {
-                // Déclenchement exclusif du Contrat Cadre
-                this.methodeIntermediaireAchatCC(actuel, quantiteAcheterCC, prixCible, prixMax, demandeTG);
-                
-                // On met à jour le besoin de la catégorie en soustrayant ce qu'on vient de tenter d'acheter en CC
-                besoinRestantPourCC = Math.max(0, besoinRestantPourCC - quantiteAcheterCC);
+                // On ne tente le Contrat Cadre que s'il y a un volume pertinent
+                if (quantiteAcheterCC > 0.1) {
+                    // Déclenchement exclusif du Contrat Cadre avec la portion fractionnée
+                    this.methodeIntermediaireAchatCC(actuel, quantiteAcheterCC, prixCible, prixMax, demandeTG);
+                    
+                    // Mise à jour dynamique du besoin global restant
+                    besoinRestantPourCC = Math.max(0, besoinRestantPourCC - quantiteAcheterCC);
+                }
             }
         }
 
-        // --- ÉTAPE 2 : TOURNÉE DES APPELS D'OFFRE (AO) ---
-        // On repart du besoin mis à jour après la phase des Contrats Cadres
+        // --- ÉTAPE 2 : TOUR FINAL VIA APPELS D'OFFRE (AO) ---
+        // On repart du besoin résiduel non comblé par les contrats cadres fractionnés
         double besoinRestantPourAO = besoinRestantPourCC; 
 
+        // On effectue un seul tour final, mais cette fois-ci sans fractionnement pour boucher les trous
         for (int i = 0; i < liste.size(); i++) {
-            // Si le besoin a été totalement comblé par les contrats cadres, on arrête
+            // Si le besoin a été totalement comblé, on arrête tout
             if (besoinRestantPourAO <= 0.1) break;
 
             ChocolatDeMarque actuel = liste.get(i);
@@ -228,10 +246,11 @@ public class Approvisionnement extends ChocolatDistributeur1 {
                 prixMax = this.prixDAchat.getOrDefault(liste.get(i + 1), prixMax);
             }
 
-            // Recalcul de la logique TG pour la phase AO (les stocks TG ayant pu évoluer)
-            boolean demandeTG = false;
+            // Pour l'AO de sécurité, on demande TOUT le besoin restant d'un coup (sans fractionner)
             double quantiteAcheterAO = besoinRestantPourAO;
             
+            // Recalcul de la logique TG pour la phase AO (les stocks TG ayant pu évoluer)
+            boolean demandeTG = false;
             if (actuel.isEquitable()) {
                 double capaciteMaxTG = this.TailleRayon * 0.1;
                 double occupationActuelleTG = getQuantiteTotaleTG();
@@ -239,17 +258,17 @@ public class Approvisionnement extends ChocolatDistributeur1 {
 
                 if (occupationActuelleTG < (capaciteMaxTG * 0.8)) {
                     demandeTG = true;
-                    if (besoinRestantPourAO > placeRestanteTG) {
+                    if (quantiteAcheterAO > placeRestanteTG) {
                         quantiteAcheterAO = Math.max(0, placeRestanteTG);
                     }
                 }
             }
 
-            // Déclenchement exclusif de l'Appel d'Offre
+            // Déclenchement exclusif de l'Appel d'Offre de sauvegarde
             if (quantiteAcheterAO > 0.1) {
                 this.methodeIntermediaireAchatAO(actuel, quantiteAcheterAO, prixCible, prixMax, demandeTG);
                 
-                // On déduit également le volume pour les prochains chocolats de la liste s'il y en a
+                // On déduit au fur et à mesure le volume obtenu pour les chocolats restants
                 besoinRestantPourAO = Math.max(0, besoinRestantPourAO - quantiteAcheterAO);
             }
         }
