@@ -310,13 +310,13 @@ public class Approvisionnement extends ChocolatDistributeur1 {
         this.ChocolatsAchetes = new HashMap<>(); 
         this.stockPreditTG = new HashMap<>(); // Initialisation du dictionnaire TG
         
-        int etapeActuelle = Filiere.LA_FILIERE.getEtape() + 1;
+        int etapeActuelle = Filiere.LA_FILIERE.getEtape();
 
         // 1. Initialisation à 0 pour tous les chocolats de la filière
         for (ChocolatDeMarque cdm : Filiere.LA_FILIERE.getChocolatsProduits()) {
             predit.put(cdm, this.getQuantiteEnStock(cdm, this.cryptogramme));
-            this.ChocolatsAchetes.put(cdm, 0.0);
-            this.stockPreditTG.put(cdm, 0.0);
+            this.ChocolatsAchetes.put(cdm, Stock.getOrDefault(cdm, 0.0)); // On part du stock actuel pour le suivi des achats
+            this.stockPreditTG.put(cdm, Stock.getOrDefault(cdm, 0.0)); // On part du stock actuel pour le suivi TG
         }
 
         // 2. Prise en compte des contrats CADRES EXISTANTS (Livraisons + TG)
