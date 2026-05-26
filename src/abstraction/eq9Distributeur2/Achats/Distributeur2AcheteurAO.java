@@ -57,7 +57,7 @@ public Distributeur2AcheteurAO(){
 
         for (ChocolatDeMarque choco : produitsFiliere) {
             if (estMarqueConcurrente(choco)) {
-                continue; // On ignore ce chocolat et on passe au suivant direct !
+                continue; // On ignore ce chocolat
             }
             if (!gs.doitAcheter(choco)) continue;
             if (!gs.prefererAO(choco)) continue; // CC gère le reste
