@@ -198,6 +198,7 @@ public class Approvisionnement extends ChocolatDistributeur1 {
         // Sera surchargée
     }
 
+    /** @author Lucas Levillain */
     protected void methodeIntermediaireAchat(ChocolatDeMarque cdm, double besoin, double prixCible, double prixMax, boolean TG) {
         methodeIntermediaireAchatCC(cdm, besoin, prixCible, prixMax, TG);
     
