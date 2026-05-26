@@ -29,7 +29,7 @@ public class EQ9_GestionStocks {
         int etape = Filiere.LA_FILIERE.getEtape();
         if (etape < 1) return 0.0;
         double ventes = Filiere.LA_FILIERE.getVentes(choco, etape - 1);
-        return ventes / 365.0;
+        return ventes ;
     }
 
     public double DOS(ChocolatDeMarque choco) {
@@ -48,7 +48,7 @@ public class EQ9_GestionStocks {
 
     public boolean doitAcheter(ChocolatDeMarque choco) {
         double sp = stockProjete(choco);
-        return sp < EQ9Config.STOCK_CIBLE_T;
+        return sp < EQ9Config.STOCK_CIBLE_T * 1000;
     }
 
     public double quantiteAacheter(ChocolatDeMarque choco) {
