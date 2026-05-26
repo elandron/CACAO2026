@@ -45,6 +45,7 @@ public class Distributeur1 extends MiseEnRayon {
 		
 		//Journal Stock
 		this.journal2.ajouter("Numéro de tour : " + Filiere.LA_FILIERE.getEtape());
+		this.journal2.ajouter("Volume en stock : "+v1+"T");
 		for (int i=0; i<p.size(); i++){
 			double q=this.getQuantiteEnStock(p.get(i),this.cryptogramme);
 			this.journal2.ajouter(p.get(i)+" : "+q+"T");
@@ -66,8 +67,8 @@ public class Distributeur1 extends MiseEnRayon {
 			double f=this.getQuantiteEnRayon(p.get(j),this.cryptogramme);
 		}
 		
-		this.actualiserPrixDachatParContrats();
-		this.actualiserPrixDeVente();
+		//this.actualiserPrixDachatParContrats();
+		//this.actualiserPrixDeVente();
 		this.stockPredit = initialiserStockPredit();
 
 		//JournalActions
