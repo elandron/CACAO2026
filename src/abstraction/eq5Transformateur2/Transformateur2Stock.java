@@ -313,7 +313,7 @@ public class Transformateur2Stock extends Transformateur2Marque{
         if(stockTotal > 0.0){
             Filiere.LA_FILIERE.getBanque().payerCout(this,this.cryptogramme,"EQ5 payement stockage",4*stockTotal*Filiere.LA_FILIERE.getParametre("cout moyen stockage producteur").getValeur());
         }
-        this.getJournaux().get(10).ajouter("Payement de " + Filiere.LA_FILIERE.getParametre("cout moyen stockage producteur").getValeur()*4*stockTotal + " pour le stockage"+"\n");
+        this.getJournaux().get(10).ajouter("Paiement de " + Filiere.LA_FILIERE.getParametre("cout moyen stockage producteur").getValeur()*4*stockTotal + " pour le stockage"+"\n");
     }
 
 }
