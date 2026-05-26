@@ -33,14 +33,19 @@ public class Transformateur4Vente extends Transformateur4Production implements I
 
     @Override
     public Echeancier contrePropositionDuVendeur(ExemplaireContratCadre contrat) {
+        if (contrat.getProduit() instanceof ChocolatDeMarque){
         this.journal_negociation_CC.ajouter("[Échancier] Proposition de Contrat avec "+ contrat.getAcheteur() + " , négociation de l'échéancier " + contrat.getEcheancier());
-        return contrat.getEcheancier();//echeance;
+        return contrat.getEcheancier(); }
+        else {
+            return null;
+        }
+
     }
 
     @Override
     public double propositionPrix(ExemplaireContratCadre contrat) {
         if (contrat.getProduit() instanceof ChocolatDeMarque){
-        this.journal_negociation_CC.ajouter("[Prix acheteur] Proposition de Contrat avec "+ contrat.getAcheteur() + ", négociation du prix " + contrat.getPrix());
+        this.journal_negociation_CC.ajouter("[Prix acheteur] Proposition de Contrat avec négociation du prix " + contrat.getPrix());
         if (Double.isNaN(contrat.getPrix())){
             this.journal_negociation_CC.ajouter("[Prix vendeur] Proposition de Contrat avec "+ contrat.getAcheteur() + ", négociation du prix " + this.cout_prod.getValeur()*3);
             return this.cout_prod.getValeur()*3;
@@ -73,12 +78,7 @@ public class Transformateur4Vente extends Transformateur4Production implements I
         
     }
 
-    @Override
-    public void notificationNouveauContratCadre(ExemplaireContratCadre contrat) {
-        this.journal_vente_CC.ajouter("[CONTRAT ACCEPTE] Contrat accepté avec " + contrat.getVendeur() + " pour " + contrat.getQuantiteTotale() + " tonnes de " + contrat.getProduit() + " à " + contrat.getPrix() + " € la tonne");
-        this.journal_negociation_CC.ajouter("[CONTRAT ACCEPTE] Contrat accepté avec " + contrat.getAcheteur() + " pour " + contrat.getQuantiteTotale() + " tonnes de " + contrat.getProduit() + " à " + contrat.getPrix() + " € la tonne");
-    
-    }
+
 
     @Override
     public double livrer(IProduit produit, double quantite, ExemplaireContratCadre contrat) {
