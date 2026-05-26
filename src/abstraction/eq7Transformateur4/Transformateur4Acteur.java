@@ -25,6 +25,7 @@ public class Transformateur4Acteur implements IActeur {
 
 	protected Journal journal_vente_CC;
 	protected Journal journal_negociation_CC;
+	protected Journal journal_vente_AO;
 	private StockEq7 stock_Equitable;
 	private StockEq7 stock_PasEquitable;
 	private Variable LQ; //Indicateur LQ Equitable + pas equitable
@@ -62,6 +63,9 @@ public class Transformateur4Acteur implements IActeur {
 		this.StockChoco_BQ=new Variable("StockChoco_BQ", this, 0);
 		this.StockChoco_MQ=new Variable("StockChoco_MQ", this, 0);
 		this.StockChoco_HQ=new Variable("StockChoco_HQ", this, 0);	
+
+		this.journal_vente_AO = new Journal("Vente par appel d'offres", this);
+		
 
 		
 
@@ -136,6 +140,7 @@ public class Transformateur4Acteur implements IActeur {
 		res.add(this.journal_negociation_CC);
 		res.add(this.journal_CC_achat);
 		res.add(this.journal_vente_enchere);
+		res.add(this.journal_vente_AO);
 
 		return res;
 	}

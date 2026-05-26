@@ -38,20 +38,23 @@ public class Transformateur4VendeurAppelDOffre extends Transformateur4VendeurAux
         switch (cdm.getChocolat()) {
             case C_HQ: 
                 prixTonne = 9000.0;
+                this.journal_vente_AO.ajouter("Proposition de vente de "+offre.getQuantiteT()+" T de "+cdm+" à "+prixTonne+" €/T par "+offre.getAcheteur().getNom());
                 break;
             case C_MQ: 
                 prixTonne = 8000.0;
+                this.journal_vente_AO.ajouter("Proposition de vente de "+offre.getQuantiteT()+" T de "+cdm+" à "+prixTonne+" €/T par "+offre.getAcheteur().getNom());
                 break;
             case C_BQ: 
                 prixTonne = 6000.0;
+                this.journal_vente_AO.ajouter("Proposition de vente de "+offre.getQuantiteT()+" T de "+cdm+" à "+prixTonne+" €/T par "+offre.getAcheteur().getNom());
                 break;
             default:   
                 prixTonne = 5000.0;
-                break;
-        }
-
-        return new OffreVente(offre, this, cdm, prixTonne);
-    }
+                this.journal_vente_AO.ajouter("Proposition de vente de "+offre.getQuantiteT()+" T de "+cdm+" à "+prixTonne+" €/T par "+offre.getAcheteur().getNom());}
+    
+			return new OffreVente(offre, this, cdm, prixTonne);
+	
+			}
 
 	public void notifierVenteAO(OffreVente propositionRetenue){
         this.get_StockChoco_BQ().retirer(this, propositionRetenue.getQuantiteT());
