@@ -69,7 +69,7 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 		this.volumerayonTG = 0.0;
 		this.CoutParArticle = 0.0;
 		this.prixDAchat = new HashMap<ChocolatDeMarque, Double>();
-		this.qtevendutotal = 75000*4;
+		this.qtevendutotal = 75000.0; // estimation de la quantité totale vendue sur l'année pour le lancement de la simulation, à ajuster en fonction des résultats obtenus et de l'évolution du marché
 	}
 	/** @author Alexandre Cornet */
 	public void initialiser() {
@@ -99,7 +99,7 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 			}
 			//System.out.println("initial "+p.get(i)+" a "+prixDAchat.get((ChocolatDeMarque)(p.get(i)))+" €/T");
 
-			this.Stock.put((IProduit)(p.get(i)),40000.0);
+			this.Stock.put((IProduit)(p.get(i)),2000.0);
 			this.Rayon.put((IProduit)(p.get(i)),0.0);
 			this.volumeStock.ajouter(this,getQuantiteEnStock((IProduit)(p.get(i)),this.cryptogramme));
 		}
@@ -120,7 +120,7 @@ public class Distributeur1Acteur implements IDistributeurChocolatDeMarque {
 			
     	    if (prixAchatMoyen > 0) {
     	        // Application de la marge de 20% (PrixVente = PrixAchat * 1.20)
-    	        double nouveauPrix = prixAchatMoyen * 1.20;
+    	        double nouveauPrix = prixAchatMoyen * 1.50;
 				
     	        // On stocke le résultat
     	        this.Prix.put(cdm, nouveauPrix);
